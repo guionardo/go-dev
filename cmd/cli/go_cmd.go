@@ -33,11 +33,11 @@ var (
 )
 
 func BeforeGoAction(context *cli.Context) error {
-	folders = context.Args().Slice()
 	return nil
 }
 
 func GoAction(context *cli.Context) error {
+	folders=context.Args().Slice()
 	matches := configuration.Config.FindFolder(folders)
 	if len(matches) == 0 {
 		return errors.New(fmt.Sprintf("Folder not found: %v", folders))

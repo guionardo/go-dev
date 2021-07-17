@@ -38,10 +38,18 @@ func main() {
 				Usage:   "Configuration file",
 			},
 		},
+		Before: BeforeMainAction,
+		Action: command.GoAction,
 	}
 
 	err := app.Run(os.Args)
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func BeforeMainAction(context *cli.Context) error {
+	configurationFile := context.String("config")
+	configuration.DefaultConfig.Load(configurationFile)
+	return nil
 }

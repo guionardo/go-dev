@@ -20,7 +20,7 @@ var (
 const MaximumAge = 86400
 const MaximumSubLevel = 4
 
-func DefaultFolderConfig() string{
+func DefaultFolderConfig() string {
 	var home, err = os.UserHomeDir()
 	if err != nil {
 		log.Fatal(err)
@@ -28,6 +28,13 @@ func DefaultFolderConfig() string{
 	return path.Join(home, ".dev_folders_go.json")
 }
 
+func DefaultDevFolder() string {
+	var home, err = os.UserHomeDir()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return path.Join(home, "dev")
+}
 func Setup() {
 	var home, err = os.UserHomeDir()
 	if err != nil {
