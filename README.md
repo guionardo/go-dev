@@ -1,6 +1,8 @@
 # go-dev
 
 [![.github/workflows/release.yaml](https://github.com/guionardo/go-dev/actions/workflows/release.yaml/badge.svg)](https://github.com/guionardo/go-dev/actions/workflows/release.yaml)
+[![Go](https://github.com/guionardo/go-dev/actions/workflows/go.yml/badge.svg)](https://github.com/guionardo/go-dev/actions/workflows/go.yml)
+[![CodeQL](https://github.com/guionardo/go-dev/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/guionardo/go-dev/actions/workflows/codeql-analysis.yml)
 
 CLI for open and initiate development folder projects.
 
