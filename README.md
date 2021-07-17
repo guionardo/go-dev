@@ -15,3 +15,9 @@ Just go in terminal and "dev go my_project" and the tool will find the project i
 
 ``` bash
 dev setup add base
+
+
+## Links
+
+* https://github.com/marketplace/actions/go-release-binaries
+* https://pkg.go.dev/github.com/urfave/cli/v2#App
