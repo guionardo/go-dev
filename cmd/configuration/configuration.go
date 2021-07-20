@@ -148,8 +148,8 @@ func (pc *Paths) ReadFolders(devFolder string, maxSubLevel int) error {
 	log.Printf("Reading folders: %s\n", devFolder)
 	devFolderLevel := len(strings.Split(devFolder, string(os.PathSeparator)))
 	var _subFolders []string
-	err = filepath.Walk(path.Join(devFolder, "."),
-		func(path string, info os.FileInfo, err error) error {
+	err = filepath.WalkDir(path.Join(devFolder, "."),
+		func(path string, info os.DirEntry, err error) error {
 			if err == nil && info.IsDir() && !DirectoryHasHiddenFolder(path) {
 				folderLevel := len(strings.Split(path, "/"))
 				if folderLevel-devFolderLevel < maxSubLevel {

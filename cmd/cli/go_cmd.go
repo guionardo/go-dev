@@ -4,7 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/guionardo/go-dev/cmd/configuration"
+	"github.com/guionardo/go-dev/cmd/utils"
 	"github.com/urfave/cli/v2"
+	"log"
 )
 
 var (
@@ -33,12 +35,18 @@ var (
 )
 
 func BeforeGoAction(context *cli.Context) error {
+	configuration.SetupEnvironmentVars(context.String("basefolder"), context.String("config"))
+
+	if !configuration.DefaultConfig.TryLoad(configuration.ConfigurationFileName) {
+		log.Fatalf("Failed to read configuration file %s",configuration.ConfigurationFileName)
+	}
 	return nil
 }
 
 func GoAction(context *cli.Context) error {
-	folders=context.Args().Slice()
-	matches := configuration.Config.FindFolder(folders)
+	folders = context.Args().Slice()
+	matches := configuration.DefaultConfig.Paths.FindFolder(folders)
+
 	if len(matches) == 0 {
 		return errors.New(fmt.Sprintf("Folder not found: %v", folders))
 	}
@@ -46,11 +54,11 @@ func GoAction(context *cli.Context) error {
 	for _, m := range matches {
 		match = append(match, m.Path)
 	}
-	var folder = configuration.FolderChoice(match)
+	var folder = utils.FolderChoice(match)
 	if len(folder) == 0 {
 		return errors.New("no folder choose")
 	}
-	path, _ := configuration.Config.Get(folder)
+	path, _ := configuration.DefaultConfig.Paths.Get(folder)
 
 	result := fmt.Sprintf("cd \"%s\"", folder)
 	if openFolder {
@@ -60,6 +68,6 @@ func GoAction(context *cli.Context) error {
 		result = fmt.Sprintf("%s && %s", result, path.Command)
 	}
 	fmt.Println(result)
-	
+
 	return nil
 }

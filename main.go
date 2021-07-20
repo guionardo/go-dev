@@ -10,7 +10,11 @@ import (
 )
 
 func main() {
-	configuration.Setup()
+	err := configuration.SetupBaseEnvironment()
+	if err != nil {
+		log.Fatalf("Failed to start: %v", err)
+	}
+	//configuration.Setup()
 	var metadata = configuration.LoadMetaData()
 	app := &cli.App{
 		Name:        metadata.AppName,
@@ -34,7 +38,7 @@ func main() {
 			&cli.StringFlag{
 				Name:    "config",
 				EnvVars: []string{"GO-DEV-CONFIG"},
-				Value:   configuration.DefaultFolderConfig(),
+				Value:   configuration.DefaultFolderConfigFile,
 				Usage:   "Configuration file",
 			},
 		},
@@ -42,14 +46,12 @@ func main() {
 		Action: command.GoAction,
 	}
 
-	err := app.Run(os.Args)
+	err = app.Run(os.Args)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
 func BeforeMainAction(context *cli.Context) error {
-	configurationFile := context.String("config")
-	configuration.DefaultConfig.Load(configurationFile)
 	return nil
 }

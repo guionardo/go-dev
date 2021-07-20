@@ -8,6 +8,9 @@ CLI for open and initiate development folder projects.
 
 Just go in terminal and "dev go my_project" and the tool will find the project into folders and open it.
 
+## Environment
+
+* GO-DEV-CONFIG = Configuration file (default = ~/.dev_folders_go.json)
 
 ## Commands
 

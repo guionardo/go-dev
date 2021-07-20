@@ -3,7 +3,11 @@ package configuration
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
+	"github.com/guionardo/go-dev/cmd/utils"
+	"log"
 	"os"
+	"time"
 )
 
 type ConfigFileType struct {
@@ -14,10 +18,36 @@ type ConfigFileType struct {
 }
 
 var DefaultConfig = &ConfigFileType{
-	DevFolder:         DefaultDevFolder(),
+	DevFolder:         DefaultDevFolder,
 	Paths:             make(Paths),
-	ConfigurationFile: DefaultFolderConfig(),
+	ConfigurationFile: DefaultFolderConfigFile,
 	MaxSubLevels:      MaximumSubLevel,
+}
+
+func (cf *ConfigFileType) TryLoad(fileName string) bool {
+	if !utils.FileExists(fileName) {
+		return false
+	}
+	err := cf.Load(fileName)
+	if err == nil {
+		return true
+	}
+	log.Printf("Failed to read configuration file %s: %v\n", fileName, err)
+	if utils.FileExists(fileName) {
+		var newFile = fmt.Sprintf("%s.%s.error", fileName, time.Now().Format("20060102150405"))
+		err = os.Rename(fileName, newFile)
+		if err == nil {
+			log.Printf("Invalid file %s moved to %s\n", fileName, newFile)
+		} else {
+			err = os.Remove(fileName)
+			if err == nil {
+				log.Printf("Invalid file %s was removed\n", fileName)
+			} else {
+				log.Fatalf("Failed to remove invalid file %s: %v", fileName, err)
+			}
+		}
+	}
+	return false
 }
 
 func (cf *ConfigFileType) Load(fileName string) error {
@@ -37,12 +67,17 @@ func (cf *ConfigFileType) Load(fileName string) error {
 	if err != nil {
 		return err
 	}
+	newCf := &ConfigFileType{
+		DevFolder:         "",
+		Paths:             make(Paths),
+		ConfigurationFile: "",
+		MaxSubLevels:      0,
+	}
 
-	newPc := make(Paths)
-	if err := json.Unmarshal(bytes, &newPc); err != nil {
+	if err := json.Unmarshal(bytes, &newCf); err != nil {
 		return err
 	}
-	for _, p := range newPc {
+	for _, p := range newCf.Paths {
 		cf.Paths.Set(p)
 	}
 	cf.ConfigurationFile = fileName
@@ -50,12 +85,9 @@ func (cf *ConfigFileType) Load(fileName string) error {
 }
 
 func (cf *ConfigFileType) Save() error {
-	folderJson, _ := json.Marshal(cf)
-	file, err := os.OpenFile(cf.ConfigurationFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0655)
-	if err != nil {
-		return err
+	folderJson, err := json.Marshal(cf)
+	if err == nil {
+		err = os.WriteFile(cf.ConfigurationFile, folderJson, 0655)
 	}
-	file.Write(folderJson)
-	file.Close()
-	return nil
+	return err
 }

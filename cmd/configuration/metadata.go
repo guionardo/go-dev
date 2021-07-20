@@ -19,7 +19,7 @@ type MetadataType struct {
 }
 
 func LoadMetaData() MetadataType {
-	ct, _ := time.Parse("2006-01-02T15:04:05", getValue("version"))
+	ct, _ := time.Parse("2006-01-02T15:04:05", getValue("build_date"))
 	MetaData = MetadataType{
 		AppName:     getValue("name"),
 		BuildDate:   getValue("build_date"),

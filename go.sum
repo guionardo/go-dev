@@ -1,3 +1,5 @@
+bitbucket.org/kardianos/osext v0.0.0-20181027061946-15c52d0993e9 h1:e4OTPTo8CRlaXb79fvCXZIHLLOgAf4r360j6NspbhRk=
+bitbucket.org/kardianos/osext v0.0.0-20181027061946-15c52d0993e9/go.mod h1:gCJCsH2RZ6GzBARZLbHxrfO81GvxS0XbMqlnU8aSli0=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d h1:U+s90UTSYgptZMwQh2aRr3LuazLJIa+Pg3Kc1ylSYVY=
 github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d/go.mod h1:maD7wRr/U5Z6m/iR4s+kqSMx2CaBsrgA7czyZG/E6dU=

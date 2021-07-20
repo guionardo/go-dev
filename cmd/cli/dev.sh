@@ -1,20 +1,20 @@
 #!/bin/bash
-DEV_FOLDER_GO=/home/guionardo/dev/lab/dev/dev_go/dev_go
+GO_DEV={GO_DEV}
 
 function list_folders() {
-  ($DEV_FOLDER_GO list)
+  ($GO_DEV list)
 }
 
 function update_folders() {
-  ($DEV_FOLDER_GO update)
+  ($GO_DEV update)
 }
 
 function setup_folders() {
-  ($DEV_FOLDER_GO setup $2)
+  ($GO_DEV setup $2)
 }
 
 if [[ "$1" == "" ]]; then
-  ($DEV_FOLDER_GO)
+  ($GO_DEV)
 else
   case $1 in
   list)
@@ -29,7 +29,7 @@ else
 
   *)
     exec 5>&1
-    RESULT=$($DEV_FOLDER_GO go $@ | tee >(cat - >&5))
+    RESULT=$($GO_DEV go $@ | tee >(cat - >&5))
     for ROW in ${RESULT[@]}; do
       LAST_ROW="$ROW"
     done
