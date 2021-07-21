@@ -30,6 +30,13 @@ func (cf *ConfigFileType) TryLoad(fileName string) bool {
 	}
 	err := cf.Load(fileName)
 	if err == nil {
+		if NeedUpdateConfigFile(fileName,false){
+
+			err=cf.Paths.ReadFolders(cf.DevFolder,cf.MaxSubLevels)
+			if err!=nil{
+
+			}
+		}
 		return true
 	}
 	log.Printf("Failed to read configuration file %s: %v\n", fileName, err)
@@ -85,7 +92,7 @@ func (cf *ConfigFileType) Load(fileName string) error {
 }
 
 func (cf *ConfigFileType) Save() error {
-	folderJson, err := json.Marshal(cf)
+	folderJson, err := json.MarshalIndent(cf,"","  ")
 	if err == nil {
 		err = os.WriteFile(cf.ConfigurationFile, folderJson, 0655)
 	}

@@ -3,10 +3,11 @@ package command
 import (
 	"errors"
 	"fmt"
-	"github.com/guionardo/go-dev/cmd/utils"
+	"github.com/guionardo/go-dev/cmd/configuration"
 	"github.com/urfave/cli/v2"
 	"log"
-	"path/filepath"
+	"os"
+	"strings"
 )
 
 const folderArg = "folder"
@@ -20,13 +21,13 @@ var (
 	setupDisable     bool
 	setupDisableSubs bool
 	SetupCmd         = &cli.Command{
-		Name:    "setup",
-		Usage:   "Setup configuration for folder",
+		Name:  "setup",
+		Usage: "Setup configuration for folder",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:        folderArg,
 				Aliases:     []string{"f"},
-				Value:       ".",
+				Value:       configuration.CurrentDir(),
 				Usage:       "Folder",
 				Destination: &SetupFolder,
 			},
@@ -47,24 +48,11 @@ var (
 			},
 		},
 		Action: SetupAction,
-		Before: BeforeAction,
+		Before: BeforeActionLoadConfiguration,
 	}
 )
 
-func BeforeAction(context *cli.Context) error {
-	if !utils.PathExists(SetupFolder) {
-		return errors.New(fmt.Sprintf("Path not found: %s", SetupFolder))
-	}
-
-	folder, err := filepath.Abs(SetupFolder)
-	if err == nil {
-		SetupFolder = folder
-		return nil
-	}
-	return errors.New(fmt.Sprintf("Failed to get absolute path of %s : %v", SetupFolder, err))
-}
-
-func SetupAction(context *cli.Context) error {
+func SetupAction(*cli.Context) error {
 	err := parseEnableDisable()
 	if err != nil {
 		return err
@@ -74,16 +62,32 @@ func SetupAction(context *cli.Context) error {
 	return nil
 }
 
+func setEnableDisable(enable bool) error {
+	path, err := configuration.DefaultConfig.Paths.Get(SetupFolder)
+	if err != nil {
+		return err
+	}
+	if path.Ignore != enable {
+		return nil
+	}
+	path.Ignore = !enable
+	err = configuration.DefaultConfig.Save()
+	return err
+}
+
 func parseEnableDisable() error {
 	if setupEnable && setupDisable {
 		return errors.New(fmt.Sprintf("%s and %s flags are mutually exclusive", enableArg, disableArg))
 	}
+	var err error
 	if setupEnable {
 		log.Printf("Enabling folder %s\n", SetupFolder)
+		err = setEnableDisable(true)
 	} else if setupDisable {
 		log.Printf("Disabling folder %s\n", SetupFolder)
+		err = setEnableDisable(false)
 	}
-	return nil
+	return err
 }
 
 func parseDisableSubFolders() error {
@@ -91,5 +95,32 @@ func parseDisableSubFolders() error {
 		return nil
 	}
 	log.Printf("Disabling sub-folders for %s\n", SetupFolder)
+	var changed = false
+	var setupFolder = SetupFolder + string(os.PathSeparator)
+	for _, folder := range configuration.DefaultConfig.Paths.FolderList() {
+
+		if strings.HasPrefix(folder, setupFolder) && folder != SetupFolder {
+			path, err := configuration.DefaultConfig.Paths.Get(folder)
+			if err == nil && !path.Ignore {
+				path.Ignore = true
+				err = configuration.DefaultConfig.Paths.Set(path)
+				if err == nil {
+					changed = true
+					log.Printf("+ %s\n", folder)
+				} else {
+					log.Printf("! %s (%v)\n", folder, err)
+				}
+
+			}
+
+		}
+	}
+	if changed {
+		if err := configuration.DefaultConfig.Save(); err == nil {
+			log.Println("Updated configuration")
+		} else {
+			log.Fatalf("Failed to update configuration: %v", err)
+		}
+	}
 	return nil
 }

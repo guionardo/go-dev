@@ -6,7 +6,6 @@ import (
 	"github.com/guionardo/go-dev/cmd/configuration"
 	"github.com/guionardo/go-dev/cmd/utils"
 	"github.com/urfave/cli/v2"
-	"log"
 )
 
 var (
@@ -18,7 +17,7 @@ var (
 		Usage:     "Go to folder",
 		ArgsUsage: "[words for locate the folders]",
 		Action:    GoAction,
-		Before:    BeforeGoAction,
+		Before:    BeforeActionLoadConfiguration,
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:        "just-cd",
@@ -33,15 +32,6 @@ var (
 		},
 	}
 )
-
-func BeforeGoAction(context *cli.Context) error {
-	configuration.SetupEnvironmentVars(context.String("basefolder"), context.String("config"))
-
-	if !configuration.DefaultConfig.TryLoad(configuration.ConfigurationFileName) {
-		log.Fatalf("Failed to read configuration file %s",configuration.ConfigurationFileName)
-	}
-	return nil
-}
 
 func GoAction(context *cli.Context) error {
 	folders = context.Args().Slice()
@@ -67,7 +57,7 @@ func GoAction(context *cli.Context) error {
 	if !justCD && len(path.Command) > 0 {
 		result = fmt.Sprintf("%s && %s", result, path.Command)
 	}
-	fmt.Println(result)
+	utils.WriteOutput(result)
 
 	return nil
 }

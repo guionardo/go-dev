@@ -3,6 +3,7 @@ package command
 import (
 	"github.com/guionardo/go-dev/cmd/configuration"
 	"github.com/urfave/cli/v2"
+	"log"
 )
 
 var (
@@ -10,7 +11,7 @@ var (
 		Name:   "update",
 		Usage:  "Update folders",
 		Action: UpdateAction,
-		Before: BeforeUpdateAction,
+		Before: BeforeActionLoadConfiguration,
 		Flags: []cli.Flag{
 			&cli.IntFlag{
 				Name:        "max-path-level",
@@ -22,15 +23,12 @@ var (
 	}
 )
 
-func UpdateAction(context *cli.Context) error {
+func UpdateAction(*cli.Context) error {
+	log.Println("Updating folders")
 	err := configuration.DefaultConfig.Paths.ReadFolders(configuration.DevFolder, configuration.MaxFolderLevel)
 	if err != nil {
 		err = configuration.DefaultConfig.Save()
 	}
 
 	return err
-}
-
-func BeforeUpdateAction(context *cli.Context) error {
-	return configuration.DefaultConfig.Load(configuration.ConfigurationFileName)
 }

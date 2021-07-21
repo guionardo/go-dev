@@ -14,14 +14,13 @@ import (
 	"strings"
 )
 
-//go:embed dev.sh
+//go:embed go-dev.sh
 var devSh string
 
 var (
-	installRemove   bool
-	devBaseFolder   string
-	maximumSubLevel int
-	InstallCmd      = &cli.Command{
+	installRemove bool
+	devBaseFolder string
+	InstallCmd    = &cli.Command{
 		Name:  "install",
 		Usage: "Install go-dev",
 		Flags: []cli.Flag{
@@ -31,7 +30,7 @@ var (
 				Destination: &installRemove,
 			},
 			&cli.PathFlag{
-				Name:        "basefolder",
+				Name:        BaseFolderArg,
 				Usage:       "Development base folder",
 				Value:       configuration.DefaultDevFolder,
 				Destination: &devBaseFolder,
@@ -48,11 +47,11 @@ var (
 	}
 )
 
-func InstallAction(context *cli.Context) error {
+func InstallAction(*cli.Context) error {
 	newConfig := &configuration.ConfigFileType{
 		DevFolder:         configuration.DevFolder,
 		Paths:             make(configuration.Paths),
-		ConfigurationFile: configuration.ConfigurationFileName,
+		ConfigurationFile: configuration.ConfigFileName,
 	}
 	var err error
 	if err = newConfig.Paths.ReadFolders(configuration.DevFolder, configuration.MaxFolderLevel); err == nil {
@@ -61,7 +60,9 @@ func InstallAction(context *cli.Context) error {
 			goDevScript, err := installScript()
 			if err == nil {
 				if err = installAlias(goDevScript); err == nil {
-					fmt.Println("Alias setup is done")
+					if err = installEnv(); err == nil {
+						fmt.Println("Alias setup is done")
+					}
 				}
 			}
 		}
@@ -79,6 +80,22 @@ func installScript() (string, error) {
 		err = os.WriteFile(scriptFile, []byte(devSh), 0655)
 	}
 	return scriptFile, err
+}
+
+func installEnv() error {
+	//TODO: Implementar a gravação de export GO-DEV-CONFIG em .bashrc
+	//bashRcFile:=path.Join(configuration.HomePath,".bashrc")
+	//var bashRc string
+	//if utils.FileExists(bashRcFile){
+	//	bashRc,err:=os.ReadFile(bashRc)
+	//	if err!=nil{
+	//		return err
+	//	}
+	//	if strings.Contains(bashRcFile,"export GO-DEV-CONFIG="){
+	//
+	//	}
+	//}
+	return nil
 }
 
 func installAlias(goDevShFile string) error {
@@ -113,10 +130,10 @@ func installAlias(goDevShFile string) error {
 }
 
 func BeforeInstallAction(context *cli.Context) error {
-	configuration.SetupEnvironmentVars(context.String("basefolder"), context.String("config"))
+	configuration.SetupEnvironmentVars(context.String(BaseFolderArg), context.String(ConfigArg))
 
-	if !configuration.DefaultConfig.TryLoad(configuration.ConfigurationFileName) {
-		log.Printf("New configuration file: %s", configuration.ConfigurationFileName)
+	if !configuration.DefaultConfig.TryLoad(configuration.ConfigFileName) {
+		log.Printf("New configuration file: %s", configuration.ConfigFileName)
 	}
 	return nil
 }

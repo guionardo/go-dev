@@ -13,13 +13,22 @@ const MaximumSubLevel = 4
 
 var (
 	HomePath                string
-	ConfigurationFile       ConfigFileType
+	ConfigFile              ConfigFileType
 	MaxFolderLevel          int
 	DevFolder               string
-	ConfigurationFileName   string
+	ConfigFileName          string
 	DefaultDevFolder        string
 	DefaultFolderConfigFile string
+	DefaultOutputFile       string
 )
+
+func CurrentDir() string {
+	dir, err := os.Getwd()
+	if err == nil {
+		return dir
+	}
+	return "."
+}
 
 func SetupBaseEnvironment() error {
 	var err error
@@ -27,7 +36,9 @@ func SetupBaseEnvironment() error {
 	if err == nil {
 		DefaultFolderConfigFile = path.Join(HomePath, ".dev_folders_go.json")
 		DefaultDevFolder = path.Join(HomePath, "dev")
+		DefaultOutputFile = path.Join(HomePath, ".dev_folders_go.out")
 	}
+	utils.SetOutput(DefaultOutputFile)
 
 	return err
 }
@@ -40,40 +51,43 @@ func SetupEnvironmentVars(devFolder string, configurationFile string) {
 	if len(configurationFile) == 0 {
 		configurationFile = DefaultFolderConfigFile
 	}
-	ConfigurationFileName = configurationFile
+	ConfigFileName = configurationFile
 }
 
 func SetupEnvironment() {
-	ConfigurationFile = ConfigFileType{
+	ConfigFile = ConfigFileType{
 		DevFolder:         path.Join(HomePath, "dev"),
 		Paths:             make(Paths),
-		ConfigurationFile: ConfigurationFileName,
+		ConfigurationFile: ConfigFileName,
 		MaxSubLevels:      MaximumSubLevel,
 	}
 	var err error
-	if NeedUpdateConfigFile(ConfigurationFileName, false) {
-		if !utils.FileExists(ConfigurationFileName) {
-			log.Printf("Configuration file will be created: %s\n", ConfigurationFileName)
+	if NeedUpdateConfigFile(ConfigFileName, false) {
+		if !utils.FileExists(ConfigFileName) {
+			log.Printf("Configuration file will be created: %s\n", ConfigFileName)
 		} else {
-			err = ConfigurationFile.Load(ConfigurationFileName)
+			err = ConfigFile.Load(ConfigFileName)
 			if err != nil {
 				log.Printf("Error reading configuration file. Will be recreated: %v\n", err)
 			}
 		}
-		if err = ConfigurationFile.Paths.ReadFolders(DevFolder, MaxFolderLevel); err == nil {
-			if err = ConfigurationFile.Save(); err == nil {
-				log.Printf("Updated configuration file: %s\n", ConfigurationFileName)
+		if err = ConfigFile.Paths.ReadFolders(DevFolder, MaxFolderLevel); err == nil {
+			if err = ConfigFile.Save(); err == nil {
+				log.Printf("Updated configuration file: %s\n", ConfigFileName)
 			} else {
-				log.Fatalf("Failed to save configuration file: %s - %v\n", ConfigurationFileName, err)
+				log.Fatalf("Failed to save configuration file: %s - %v\n", ConfigFileName, err)
 			}
 		} else {
 			log.Fatalf("Failed to read folders: %v\n", err)
 		}
 	} else {
-		err = ConfigurationFile.Load(ConfigurationFileName)
+		err = ConfigFile.Load(ConfigFileName)
 		if err != nil {
-			os.Remove(ConfigurationFileName)
-			log.Printf("Error reading configuration file. Will be recreated on next run: %v\n", err)
+			if err = os.Remove(ConfigFileName); err == nil {
+				log.Printf("Error reading configuration file. Will be recreated on next run: %v\n", err)
+			} else {
+				log.Fatalf("Failed to remove invalid configuration file %s - %v\n", ConfigFileName, err)
+			}
 		}
 	}
 }
@@ -86,5 +100,9 @@ func NeedUpdateConfigFile(filename string, force bool) bool {
 	if err != nil {
 		return true
 	}
-	return time.Now().Unix()-info.ModTime().Unix() > MaximumAge
+	if time.Now().Unix()-info.ModTime().Unix() > MaximumAge {
+		log.Printf("Reloading paths after %v", time.Duration(MaximumAge))
+		return true
+	}
+	return false
 }

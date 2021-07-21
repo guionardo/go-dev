@@ -3,6 +3,7 @@ package main
 import (
 	command "github.com/guionardo/go-dev/cmd/cli"
 	"github.com/guionardo/go-dev/cmd/configuration"
+	"github.com/guionardo/go-dev/cmd/utils"
 	"log"
 	"os"
 
@@ -14,7 +15,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to start: %v", err)
 	}
-	//configuration.Setup()
+	
 	var metadata = configuration.LoadMetaData()
 	app := &cli.App{
 		Name:        metadata.AppName,
@@ -22,8 +23,8 @@ func main() {
 		Compiled:    metadata.CompileTime,
 		Description: "Go to your projects",
 		Commands: []*cli.Command{
-			command.SetupCmd,
 			command.GoCmd,
+			command.SetupCmd,
 			command.ListCmd,
 			command.UpdateCmd,
 			command.InstallCmd,
@@ -36,10 +37,17 @@ func main() {
 		},
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:    "config",
+				Name:    command.ConfigArg,
 				EnvVars: []string{"GO-DEV-CONFIG"},
 				Value:   configuration.DefaultFolderConfigFile,
 				Usage:   "Configuration file",
+			},
+			&cli.StringFlag{
+				Name:        "output",
+				EnvVars:     []string{"GO-DEV-OUTPUT"},
+				Value:       configuration.DefaultOutputFile,
+				Usage:       "Output file for command execution",
+				Destination: &utils.OutputFileName,
 			},
 		},
 		Before: BeforeMainAction,
@@ -52,6 +60,6 @@ func main() {
 	}
 }
 
-func BeforeMainAction(context *cli.Context) error {
+func BeforeMainAction(*cli.Context) error {
 	return nil
 }

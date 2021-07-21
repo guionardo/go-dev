@@ -1,42 +1,22 @@
 #!/bin/bash
 GO_DEV=/home/guionardo/dev/github.com/guionardo/go-dev/go-dev
+CMD="go"
 
-function list_folders() {
-  ($GO_DEV list)
-}
+output_file="$HOME/.go-dev.output.sh"
 
-function update_folders() {
-  ($GO_DEV update)
-}
 
-function setup_folders() {
-  ($GO_DEV setup $2)
-}
-
-if [[ "$1" == "" ]]; then
-  ($GO_DEV)
-else
-  case $1 in
-  list)
-    list_folders
+case $1 in
+  list|update|setup|help)
+    CMD="$1"
+    shift 1
     ;;
-  update)
-    update_folders
-    ;;
-  setup)
-    setup_folders "$2"
-    ;;
+esac
 
-  *)
-    exec 5>&1
-    RESULT=$($GO_DEV go $@ | tee >(cat - >&5))
-    for ROW in ${RESULT[@]}; do
-      LAST_ROW="$ROW"
-    done
-    if [[ -f $LAST_ROW ]]; then
-      source $LAST_ROW
-      rm $LAST_ROW
-    fi
-    ;;
-  esac
+# shellcheck disable=SC2068
+$GO_DEV --output=$output_file "$CMD" $@
+
+if [[ -f $output_file ]]; then
+  source $output_file
+  rm "$output_file"
 fi
+
