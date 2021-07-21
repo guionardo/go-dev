@@ -2,7 +2,7 @@
 
 on:
   release:
-    types: [created]
+    types: [ created ]
 
 jobs:
   release-linux-amd64:
@@ -14,14 +14,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: linux
-          goarch: amd64
-  release-windows:
-    name: release windows/amd64
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: wangyoucao577/go-release-action@v1.18
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          goos: windows
           goarch: amd64
