@@ -21,7 +21,8 @@ func main() {
 		Name:        metadata.AppName,
 		Version:     metadata.Version,
 		Compiled:    metadata.CompileTime,
-		Description: "Go to your projects",
+		//Description: "Go to your projects",
+		Usage: "Go to your projects",
 		Commands: []*cli.Command{
 			command.GoCmd,
 			command.SetupCmd,

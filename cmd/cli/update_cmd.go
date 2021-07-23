@@ -26,7 +26,7 @@ var (
 func UpdateAction(*cli.Context) error {
 	log.Println("Updating folders")
 	err := configuration.DefaultConfig.Paths.ReadFolders(configuration.DevFolder, configuration.MaxFolderLevel)
-	if err != nil {
+	if err == nil {
 		err = configuration.DefaultConfig.Save()
 	}
 
