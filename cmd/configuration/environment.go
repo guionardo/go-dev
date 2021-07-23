@@ -13,7 +13,6 @@ const MaximumSubLevel = 4
 
 var (
 	HomePath                string
-	ConfigFile              ConfigFileType
 	MaxFolderLevel          int
 	DevFolder               string
 	ConfigFileName          string
@@ -31,6 +30,7 @@ func CurrentDir() string {
 }
 
 func SetupBaseEnvironment() error {
+	utils.SetupLogging()
 	var err error
 	HomePath, err = os.UserHomeDir()
 	if err == nil {
@@ -52,44 +52,6 @@ func SetupEnvironmentVars(devFolder string, configurationFile string) {
 		configurationFile = DefaultFolderConfigFile
 	}
 	ConfigFileName = configurationFile
-}
-
-func SetupEnvironment() {
-	ConfigFile = ConfigFileType{
-		DevFolder:         path.Join(HomePath, "dev"),
-		Paths:             make(Paths),
-		ConfigurationFile: ConfigFileName,
-		MaxSubLevels:      MaximumSubLevel,
-	}
-	var err error
-	if NeedUpdateConfigFile(ConfigFileName, false) {
-		if !utils.FileExists(ConfigFileName) {
-			log.Printf("Configuration file will be created: %s\n", ConfigFileName)
-		} else {
-			err = ConfigFile.Load(ConfigFileName)
-			if err != nil {
-				log.Printf("Error reading configuration file. Will be recreated: %v\n", err)
-			}
-		}
-		if err = ConfigFile.Paths.ReadFolders(DevFolder, MaxFolderLevel); err == nil {
-			if err = ConfigFile.Save(); err == nil {
-				log.Printf("Updated configuration file: %s\n", ConfigFileName)
-			} else {
-				log.Fatalf("Failed to save configuration file: %s - %v\n", ConfigFileName, err)
-			}
-		} else {
-			log.Fatalf("Failed to read folders: %v\n", err)
-		}
-	} else {
-		err = ConfigFile.Load(ConfigFileName)
-		if err != nil {
-			if err = os.Remove(ConfigFileName); err == nil {
-				log.Printf("Error reading configuration file. Will be recreated on next run: %v\n", err)
-			} else {
-				log.Fatalf("Failed to remove invalid configuration file %s - %v\n", ConfigFileName, err)
-			}
-		}
-	}
 }
 
 func NeedUpdateConfigFile(filename string, force bool) bool {

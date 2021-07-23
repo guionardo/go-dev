@@ -1,8 +1,6 @@
 package configuration
 
 import (
-	"bufio"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/guionardo/go-dev/cmd/utils"
@@ -10,7 +8,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -31,34 +28,6 @@ func (path PathSetup) ToString() string {
 	return fmt.Sprintf("Path: %s [Command=%s]", path.Path, path.Command)
 }
 
-func (pc *Paths) Load(filename string) error {
-	file, err := os.Open(filename)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-	stats, statsErr := file.Stat()
-	if statsErr != nil {
-		return err
-	}
-	var size = stats.Size()
-	bytes := make([]byte, size)
-	buffer := bufio.NewReader(file)
-	_, err = buffer.Read(bytes)
-	if err != nil {
-		return err
-	}
-
-	newPc := make(Paths)
-	if err := json.Unmarshal(bytes, &newPc); err != nil {
-		return err
-	}
-	for _, p := range newPc {
-		pc.Set(p)
-	}
-	return nil
-}
-
 func (pc *Paths) Set(path PathSetup) error {
 	if !utils.PathExists(path.Path) {
 		return errors.New("Path not found: " + path.Path)
@@ -73,6 +42,7 @@ func (pc *Paths) Set(path PathSetup) error {
 	if len(index) == 0 {
 		index = strconv.Itoa(len(*pc) + 1)
 	}
+
 	(*pc)[index] = path
 	return nil
 }
@@ -90,17 +60,6 @@ func (pc *Paths) Get(path string) (PathSetup, error) {
 	return PathSetup{}, errors.New("Dev path not found: " + path)
 }
 
-func (pc *Paths) Save(filename string) error {
-	folderJson, _ := json.Marshal(pc)
-	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0655)
-	if err != nil {
-		return err
-	}
-	file.Write(folderJson)
-	file.Close()
-	return nil
-}
-
 func (pc *Paths) FolderList() []string {
 	var list []string
 	for _, p := range *pc {
@@ -111,18 +70,27 @@ func (pc *Paths) FolderList() []string {
 	sort.Strings(list)
 	return list
 }
-
-func (pc *Paths) FindFolder(words []string) []PathSetup {
-	var expression = "("
+func match_path(path string, words []string) bool {
+	lastIndex := -1
 	for _, s := range words {
-		expression = expression + "(.*" + s + "*?)"
+		if len(s)==0{
+			continue
+		}
+		i := strings.Index(path, s)
+		if i <= lastIndex {
+			return false
+		}
+		lastIndex = i
 	}
-	expression += ")"
+	return true
+}
+func (pc *Paths) FindFolder(words []string) []PathSetup {
+	fmt.Printf("Finding %s\n", words)
 
-	var searchPattern = regexp.MustCompile(expression)
 	var matches []PathSetup
 	for _, s := range *pc {
-		if !s.Ignore && searchPattern.Match([]byte(s.Path[len(DevFolder):])) {
+		path := s.Path[len(DevFolder):]
+		if !s.Ignore && match_path(path, words) {
 			matches = append(matches, s)
 		}
 	}
@@ -164,9 +132,35 @@ func (pc *Paths) ReadFolders(devFolder string, maxSubLevel int) error {
 	for _, folder := range _subFolders {
 		_, err := pc.Get(folder)
 		if err != nil {
-			pc.Set(PathSetup{Path: folder})
+			if err = pc.Set(PathSetup{Path: folder}); err != nil {
+				log.Printf("Failed to add folder %s - %v", folder, err)
+			}
 		}
 	}
 	log.Printf("%d folders readen", len(_subFolders))
 	return nil
 }
+
+//func (pc *Paths) Load(filename string) error {
+//	fileContent, err := os.ReadFile(filename)
+//	if err == nil {
+//		newPc := make(Paths)
+//		if err := json.Unmarshal(fileContent, &newPc); err != nil {
+//			return err
+//		}
+//		for _, p := range newPc {
+//			if err = pc.Set(p); err != nil {
+//				log.Printf("Error when adding folder: %s - %v", p.Path, err)
+//			}
+//		}
+//	}
+//
+//	return err
+//}
+//func (pc *Paths) Save(filename string) error {
+//	folderJson, err := json.Marshal(pc)
+//	if err == nil {
+//		err = os.WriteFile(filename, folderJson, 0655)
+//	}
+//	return err
+//}

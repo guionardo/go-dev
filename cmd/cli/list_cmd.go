@@ -17,7 +17,7 @@ var (
 )
 
 func ListAction(*cli.Context) error {
-	fmt.Println(strings.Join(configuration.DefaultConfig.Paths.FolderList(), "\n"))
+	_, err := fmt.Println(strings.Join(configuration.DefaultConfig.Paths.FolderList(), "\n"))
 
-	return nil
+	return err
 }

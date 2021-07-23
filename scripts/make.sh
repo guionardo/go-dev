@@ -31,7 +31,7 @@ function update_version() {
     build="${BASH_REMATCH[3]}"
   fi
 
-  # check paramater to see which number to increment
+  # check parameter to see which number to increment
   if [[ "$2" == "feature" ]]; then
     minor=$(echo $minor + 1 | bc)
   elif [[ "$2" == "bug" ]]; then

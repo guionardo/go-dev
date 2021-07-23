@@ -44,7 +44,7 @@ func GoAction(context *cli.Context) error {
 	for _, m := range matches {
 		match = append(match, m.Path)
 	}
-	var folder = utils.FolderChoice(match)
+	var folder = utils.FolderChoice(match, len(configuration.DevFolder))
 	if len(folder) == 0 {
 		return errors.New("no folder choose")
 	}

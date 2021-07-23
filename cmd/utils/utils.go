@@ -18,10 +18,10 @@ func FileExists(fileName string) bool {
 	info, err := os.Stat(fileName)
 	return err == nil && !info.IsDir()
 }
-func FolderChoice(pastas []string) string {
+func FolderChoice(pastas []string, offset int) string {
 	switch len(pastas) {
 	case 0:
-		log.Println("Não foi encontrada pasta")
+		log.Println("Folder not found")
 		return ""
 	case 1:
 		return pastas[0]
@@ -30,9 +30,9 @@ func FolderChoice(pastas []string) string {
 	var choice = -1
 	for choice < 0 {
 		for i, s := range pastas {
-			fmt.Printf("%d - %s\n", i, s)
+			fmt.Printf("%d - %s\n", i, s[offset:])
 		}
-		fmt.Printf("Escolha uma pasta: ")
+		fmt.Printf("Choice any folder: ")
 		reader := bufio.NewReader(os.Stdin)
 		n, err := reader.ReadString('\n')
 		if err != nil {
@@ -40,7 +40,7 @@ func FolderChoice(pastas []string) string {
 		}
 		choice, err = strconv.Atoi(strings.Split(n, "\n")[0])
 		if err != nil {
-			log.Fatal("Opção inválida")
+			log.Fatal("Invalid choice")
 		}
 		if choice >= 0 && choice < len(pastas) {
 			return pastas[choice]

@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	BaseFolderArg ="basefolder"
-	ConfigArg="config"
+	BaseFolderArg = "basefolder"
+	ConfigArg     = "config"
 )
 
 func BeforeActionLoadConfiguration(context *cli.Context) error {

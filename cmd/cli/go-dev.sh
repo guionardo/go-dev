@@ -6,10 +6,11 @@ OPTIONS=""
 output_file="$HOME/.go-dev.output.sh"
 
 case $1 in
-list | update | setup | help)
+list | update | setup | help | install)
   CMD="$1"
   shift 1
   ;;
+
 
 esac
 
