@@ -11,7 +11,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
         go: [1.16]
     name: ${{ matrix.os }} @ Go ${ matrix.go }}
     runs-on: ${{ matrix.os }}
