@@ -39,13 +39,13 @@ func main() {
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    command.ConfigArg,
-				EnvVars: []string{"GO-DEV-CONFIG"},
+				EnvVars: []string{"GO_DEV_CONFIG"},
 				Value:   configuration.DefaultFolderConfigFile,
 				Usage:   "Configuration file",
 			},
 			&cli.StringFlag{
 				Name:        "output",
-				EnvVars:     []string{"GO-DEV-OUTPUT"},
+				EnvVars:     []string{"GO_DEV_OUTPUT"},
 				Value:       configuration.DefaultOutputFile,
 				Usage:       "Output file for command execution",
 				Destination: &utils.OutputFileName,

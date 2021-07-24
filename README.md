@@ -10,7 +10,7 @@ Just go in terminal and "dev go my_project", and the tool will find the project 
 
 ## Environment
 
-* GO-DEV-CONFIG = Configuration file (default = ~/.dev_folders_go.json)
+* GO_DEV_CONFIG = Configuration file (default = ~/.dev_folders_go.json)
 
 ## Commands
 

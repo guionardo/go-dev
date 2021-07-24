@@ -70,10 +70,10 @@ func (pc *Paths) FolderList() []string {
 	sort.Strings(list)
 	return list
 }
-func match_path(path string, words []string) bool {
+func matchPath(path string, words []string) bool {
 	lastIndex := -1
 	for _, s := range words {
-		if len(s)==0{
+		if len(s) == 0 {
 			continue
 		}
 		i := strings.Index(path, s)
@@ -90,7 +90,7 @@ func (pc *Paths) FindFolder(words []string) []PathSetup {
 	var matches []PathSetup
 	for _, s := range *pc {
 		path := s.Path[len(DevFolder):]
-		if !s.Ignore && match_path(path, words) {
+		if !s.Ignore && matchPath(path, words) {
 			matches = append(matches, s)
 		}
 	}
@@ -140,27 +140,3 @@ func (pc *Paths) ReadFolders(devFolder string, maxSubLevel int) error {
 	log.Printf("%d folders readen", len(_subFolders))
 	return nil
 }
-
-//func (pc *Paths) Load(filename string) error {
-//	fileContent, err := os.ReadFile(filename)
-//	if err == nil {
-//		newPc := make(Paths)
-//		if err := json.Unmarshal(fileContent, &newPc); err != nil {
-//			return err
-//		}
-//		for _, p := range newPc {
-//			if err = pc.Set(p); err != nil {
-//				log.Printf("Error when adding folder: %s - %v", p.Path, err)
-//			}
-//		}
-//	}
-//
-//	return err
-//}
-//func (pc *Paths) Save(filename string) error {
-//	folderJson, err := json.Marshal(pc)
-//	if err == nil {
-//		err = os.WriteFile(filename, folderJson, 0655)
-//	}
-//	return err
-//}

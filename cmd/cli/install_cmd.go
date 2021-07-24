@@ -7,6 +7,7 @@ import (
 	"github.com/guionardo/go-dev/cmd/configuration"
 	"github.com/guionardo/go-dev/cmd/utils"
 	"github.com/urfave/cli/v2"
+	"io"
 	"log"
 	"os"
 	"path"
@@ -56,12 +57,15 @@ func InstallAction(*cli.Context) error {
 	var err error
 	if err = newConfig.Paths.ReadFolders(configuration.DevFolder, configuration.MaxFolderLevel); err == nil {
 		if err = newConfig.Save(); err == nil {
-			fmt.Printf("Configuration file saved @ %s (base folder = %s)\n", newConfig.ConfigurationFile, newConfig.DevFolder)
-			goDevScript, err := installScript()
+			log.Printf("Configuration file saved @ %s (base folder = %s)\n", newConfig.ConfigurationFile, newConfig.DevFolder)
+			goDevBinFile, err := installBinary()
 			if err == nil {
-				if err = installAlias(goDevScript); err == nil {
-					if err = installEnv(); err == nil {
-						fmt.Println("Alias setup is done")
+				goDevScript, err := installScript(goDevBinFile)
+				if err == nil {
+					if err = installAlias(goDevScript); err == nil {
+						if err = installEnv(newConfig.ConfigurationFile); err == nil {
+							log.Println("Alias setup is done")
+						}
 					}
 				}
 			}
@@ -71,31 +75,110 @@ func InstallAction(*cli.Context) error {
 	return err
 }
 
-func installScript() (string, error) {
-	filename, err := osext.Executable()
+func installScript(filename string) (string, error) {
 	var scriptFile string
-	if err == nil {
-		devSh = strings.ReplaceAll(devSh, "{GO_DEV}", filename)
-		scriptFile = path.Join(filepath.Dir(filename), "go-dev.sh")
-		err = os.WriteFile(scriptFile, []byte(devSh), 0655)
-	}
+
+	devSh = strings.ReplaceAll(devSh, "{GO_DEV}", filename)
+	scriptFile = path.Join(filepath.Dir(filename), "go-dev.sh")
+	err := os.WriteFile(scriptFile, []byte(devSh), 0655)
+
 	return scriptFile, err
 }
 
-func installEnv() error {
-	//TODO: Implementar a gravação de export GO-DEV-CONFIG em .bashrc
-	//bashRcFile:=path.Join(configuration.HomePath,".bashrc")
-	//var bashRc string
-	//if utils.FileExists(bashRcFile){
-	//	bashRc,err:=os.ReadFile(bashRc)
-	//	if err!=nil{
-	//		return err
-	//	}
-	//	if strings.Contains(bashRcFile,"export GO-DEV-CONFIG="){
-	//
-	//	}
-	//}
-	return nil
+func useOrCreateFolder(folders []string) (string, error) {
+	for _, folder := range folders {
+		if utils.PathExists(folder) {
+			log.Printf("Using bin folder: %s\n", folder)
+			return folder, nil
+		}
+	}
+	err := os.MkdirAll(folders[0], os.ModePerm)
+	if err == nil {
+		log.Printf("Using created bin folder: %s\n", folders[0])
+		return folders[0], nil
+	}
+
+	return "", err
+}
+
+func copy(src, dst string) (int64, error) {
+	sourceFileStat, err := os.Stat(src)
+	if err != nil {
+		return 0, err
+	}
+
+	if !sourceFileStat.Mode().IsRegular() {
+		return 0, fmt.Errorf("%s is not a regular file", src)
+	}
+
+	source, err := os.Open(src)
+	if err != nil {
+		return 0, err
+	}
+	defer source.Close()
+
+	destination, err := os.Create(dst)
+	if err != nil {
+		return 0, err
+	}
+	defer destination.Close()
+	nBytes, err := io.Copy(destination, source)
+	return nBytes, err
+}
+
+func installBinary() (string, error) {
+	userBinFolder, err := useOrCreateFolder([]string{
+		path.Join(configuration.HomePath, ".bin"),
+		path.Join(configuration.HomePath, "bin"),
+	})
+	if err != nil {
+		return "", err
+	}
+	currentBinFile, _ := osext.Executable()
+	userBinFile := path.Join(userBinFolder, "go-dev")
+	nBytes, err := copy(currentBinFile, userBinFile)
+	if err == nil && nBytes > 0 {
+		if err = os.Chmod(userBinFile, 0777); err == nil {
+			return userBinFile, nil
+		}
+	}
+	return "", err
+}
+
+func installEnv(configurationFile string) error {
+	bashRcFile := path.Join(configuration.HomePath, ".bashrc")
+
+	var bashLines []string
+	if utils.FileExists(bashRcFile) {
+		bashRc, err := os.ReadFile(bashRcFile)
+		if err != nil {
+			return err
+		}
+		bashLines = strings.Split(string(bashRc), "\n")
+
+		clearedBashLines := utils.Filter(bashLines,
+			func(w string) bool {
+				return !strings.Contains(w, "GO_DEV")
+			})
+		if len(bashLines) != len(clearedBashLines) {
+			log.Printf("Removing old configurations from %s\n", bashRcFile)
+			bashContent := strings.Join(clearedBashLines, "\n")
+			if err = os.WriteFile(bashRcFile, []byte(bashContent), 0644); err != nil {
+				log.Printf("Failed to save file %s - %v", bashRcFile, err)
+				return err
+			}
+			bashLines = clearedBashLines
+		}
+	} else {
+		bashLines = make([]string, 0)
+	}
+	bashLines = append(bashLines, fmt.Sprintf("export GO_DEV_CONFIG=%s", configurationFile))
+	bashContent := strings.Join(bashLines, "\n") + "\n"
+	err := os.WriteFile(bashRcFile, []byte(bashContent), 0644)
+	if err == nil {
+		log.Printf("Updated configurations: %s\n", bashRcFile)
+	}
+	return err
 }
 
 func installAlias(goDevShFile string) error {
