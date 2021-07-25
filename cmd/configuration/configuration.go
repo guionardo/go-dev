@@ -89,8 +89,8 @@ func (pc *Paths) FindFolder(words []string) []PathSetup {
 
 	var matches []PathSetup
 	for _, s := range *pc {
-		path := s.Path[len(DevFolder):]
-		if !s.Ignore && matchPath(path, words) {
+		p := s.Path[len(DevFolder):]
+		if !s.Ignore && matchPath(p, words) {
 			matches = append(matches, s)
 		}
 	}

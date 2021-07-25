@@ -101,7 +101,7 @@ func useOrCreateFolder(folders []string) (string, error) {
 	return "", err
 }
 
-func copy(src, dst string) (int64, error) {
+func copyFile(src, dst string) (int64, error) {
 	sourceFileStat, err := os.Stat(src)
 	if err != nil {
 		return 0, err
@@ -136,7 +136,7 @@ func installBinary() (string, error) {
 	}
 	currentBinFile, _ := osext.Executable()
 	userBinFile := path.Join(userBinFolder, "go-dev")
-	nBytes, err := copy(currentBinFile, userBinFile)
+	nBytes, err := copyFile(currentBinFile, userBinFile)
 	if err == nil && nBytes > 0 {
 		if err = os.Chmod(userBinFile, 0777); err == nil {
 			return userBinFile, nil

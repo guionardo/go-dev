@@ -1,6 +1,6 @@
 #!/bin/bash
-
-LATEST_RELEASE=https://github.com/guionardo/go-dev/releases/latest
+# TODO: install, downloading file directly from release
+#LATEST_RELEASE=https://github.com/guionardo/go-dev/releases/latest
 #URL_RELEASE=https://github.com/guionardo/go-dev/releases/download/v0.3.0/go-dev-v0.3.0-linux-amd64.tar.gz
 #tmp=$(mktemp)
 #curl -s $LATEST_RELEASE | \

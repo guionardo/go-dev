@@ -8,16 +8,13 @@ import (
 )
 
 var (
-	Log        *log.Logger
-	loggerFile *os.File
-	newFile    = false
-	sysLogger  *io.Writer
+	sysLogger io.Writer
 )
 
 func SetupLogging() {
 	var err error
 
-	sysLogger, err := syslog.New(syslog.LOG_INFO,"go-dev")
+	sysLogger, err = syslog.New(syslog.LOG_INFO,"go-dev")
 	if err == nil {
 		log.SetOutput(io.MultiWriter(sysLogger, os.Stdout))
 	} else {

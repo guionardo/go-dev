@@ -6,6 +6,7 @@ import (
 	"github.com/guionardo/go-dev/cmd/configuration"
 	"github.com/guionardo/go-dev/cmd/utils"
 	"github.com/urfave/cli/v2"
+	"sort"
 )
 
 var (
@@ -44,6 +45,7 @@ func GoAction(context *cli.Context) error {
 	for _, m := range matches {
 		match = append(match, m.Path)
 	}
+	sort.Strings(match)
 	var folder = utils.FolderChoice(match, len(configuration.DevFolder))
 	if len(folder) == 0 {
 		return errors.New("no folder choose")
