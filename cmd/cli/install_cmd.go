@@ -71,7 +71,9 @@ func InstallAction(*cli.Context) error {
 			}
 		}
 	}
-
+	if err != nil {
+		log.Printf("Install failed: %v\n", err)
+	}
 	return err
 }
 
