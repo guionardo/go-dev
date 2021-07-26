@@ -1,25 +1,27 @@
 package command
 
 import (
-	"errors"
 	"fmt"
-	"github.com/guionardo/go-dev/cmd/configuration"
-	"github.com/urfave/cli/v2"
 	"log"
 	"os"
 	"strings"
+
+	"github.com/guionardo/go-dev/cmd/configuration"
+	"github.com/urfave/cli/v2"
 )
 
 const folderArg = "folder"
 const enableArg = "enable"
 const disableArg = "disable"
 const disableSubFolders = "disable-subs"
+const commandArg = "command"
 
 var (
 	SetupFolder      string
 	setupEnable      bool
 	setupDisable     bool
 	setupDisableSubs bool
+	setupCommand     string
 	SetupCmd         = &cli.Command{
 		Name:  "setup",
 		Usage: "Setup configuration for folder",
@@ -46,6 +48,11 @@ var (
 				Destination: &setupDisableSubs,
 				Usage:       "Disable all sub folders",
 			},
+			&cli.StringFlag{
+				Name:        commandArg,
+				Destination: &setupCommand,
+				Usage:       fmt.Sprintf("Command to be executed after change to path [%s]", AllowedCommands),
+			},
 		},
 		Action: SetupAction,
 		Before: BeforeActionLoadConfiguration,
@@ -54,12 +61,42 @@ var (
 
 func SetupAction(*cli.Context) error {
 	err := parseEnableDisable()
-	if err != nil {
-		return err
+	if err == nil {
+		err = parseDisableSubFolders()
+		if err == nil {
+			err = parseSetCommand()
+		}
 	}
-	err = parseDisableSubFolders()
 
-	return nil
+	return err
+}
+
+func parseSetCommand() error {
+	path, err := configuration.DefaultConfig.Paths.Get(SetupFolder)
+	if err == nil {
+		command := "_"
+		for key, value := range AllowedCommandsFunctions {
+			if strings.EqualFold(key, setupCommand) {
+				command = value(path)
+				break
+			}
+		}
+		if command == "_" {
+			return fmt.Errorf("invalid command %s, expected %v", setupCommand, AllowedCommands)
+		}
+
+		path.Command = command
+		if len(setupCommand) > 0 {
+			log.Printf("Command: %s = %s\n", path.Path, command)
+		} else {
+			log.Printf("Command: %s [DISABLED]\n", path.Path)
+		}
+		if path.Command != setupCommand {
+			configuration.DefaultConfig.Paths.Set(path)
+			err = configuration.DefaultConfig.Save()
+		}
+	}
+	return err
 }
 
 func setEnableDisable(enable bool) error {
@@ -77,7 +114,7 @@ func setEnableDisable(enable bool) error {
 
 func parseEnableDisable() error {
 	if setupEnable && setupDisable {
-		return errors.New(fmt.Sprintf("%s and %s flags are mutually exclusive", enableArg, disableArg))
+		return fmt.Errorf("%s and %s flags are mutually exclusive", enableArg, disableArg)
 	}
 	var err error
 	if setupEnable {

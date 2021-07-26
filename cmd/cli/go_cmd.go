@@ -3,11 +3,26 @@ package command
 import (
 	"errors"
 	"fmt"
+	"log"
+	"sort"
+
 	"github.com/guionardo/go-dev/cmd/configuration"
 	"github.com/guionardo/go-dev/cmd/utils"
 	"github.com/urfave/cli/v2"
-	"sort"
 )
+
+var AllowedCommandsFunctions = map[string]func(configuration.PathSetup) string{
+	"vscode":  func(p configuration.PathSetup) string { return fmt.Sprintf("code \"%s\"", p.Path) },
+	"disable": func(p configuration.PathSetup) string { return "" },
+}
+
+var AllowedCommands = func() []string {
+	keys := make([]string, 0, len(AllowedCommandsFunctions))
+	for k := range AllowedCommandsFunctions {
+		keys = append(keys, k)
+	}
+	return keys
+}()
 
 var (
 	folders    []string
@@ -39,7 +54,7 @@ func GoAction(context *cli.Context) error {
 	matches := configuration.DefaultConfig.Paths.FindFolder(folders)
 
 	if len(matches) == 0 {
-		return errors.New(fmt.Sprintf("Folder not found: %v", folders))
+		return fmt.Errorf("folder not found: %v", folders)
 	}
 	var match []string
 	for _, m := range matches {
@@ -52,14 +67,23 @@ func GoAction(context *cli.Context) error {
 	}
 	path, _ := configuration.DefaultConfig.Paths.Get(folder)
 
-	result := fmt.Sprintf("cd \"%s\"", folder)
-	if openFolder {
-		result = fmt.Sprintf("xdg-open \"%s\"", folder)
-	} else
-	if !justCD && len(path.Command) > 0 {
-		result = fmt.Sprintf("%s && %s", result, path.Command)
-	}
-	utils.WriteOutput(result)
+	command := parseCommand(path, openFolder, justCD)
+
+	utils.WriteOutput(command)
 
 	return nil
+}
+
+func parseCommand(path configuration.PathSetup, justOpenFolder bool, justCD bool) string {
+
+	if justOpenFolder {
+		return fmt.Sprintf("xdg-open \"%s\"", path.Path)
+	}
+	command := fmt.Sprintf("cd \"%s\"", path.Path)
+
+	if (!justCD) && len(path.Command) > 0 {
+		command = fmt.Sprintf("%s && %s", command, path.Command)
+	}
+	log.Printf("Running command: %s\n", command)
+	return command
 }
