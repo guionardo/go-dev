@@ -2,7 +2,6 @@ package command
 
 import (
 	"fmt"
-
 	"github.com/guionardo/go-dev/cmd/configuration"
 	"github.com/urfave/cli/v2"
 )

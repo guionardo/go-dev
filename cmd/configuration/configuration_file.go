@@ -3,6 +3,7 @@ package configuration
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/guionardo/go-dev/cmd/debug"
 	"github.com/guionardo/go-dev/cmd/utils"
 	"log"
 	"os"
@@ -30,10 +31,17 @@ func (cf *ConfigFileType) TryLoad(fileName string) bool {
 	}
 	err := cf.Load(fileName)
 	if err == nil {
+		if len(cf.DevFolder) == 0 {
+			cf.DevFolder = DefaultDevFolder
+		}
 		if NeedUpdateConfigFile(fileName, false) {
-			err = cf.Paths.ReadFolders(cf.DevFolder, cf.MaxSubLevels)
-			if err != nil {
+			if err = cf.Paths.ReadFolders(cf.DevFolder, cf.MaxSubLevels); err != nil {
 				log.Printf("Failed to load configuration: Read folders failed %v", err)
+			} else {
+				if err = cf.Save(); err != nil {
+					log.Printf("Failed to save configuration: #{err}")
+					return false
+				}
 			}
 		}
 		return true
@@ -75,41 +83,11 @@ func (cf *ConfigFileType) Load(fileName string) error {
 				}
 			}
 			cf.ConfigurationFile = fileName
+			cf.DevFolder = newCf.DevFolder
+			cf.MaxSubLevels = newCf.MaxSubLevels
 		}
 	}
 	return err
-
-	//file, err := os.Open(fileName)
-	//if err != nil {
-	//	return err
-	//}
-	//defer file.Close()
-	//stats, statsErr := file.Stat()
-	//if statsErr != nil {
-	//	return err
-	//}
-	//var size = stats.Size()
-	//bytes := make([]byte, size)
-	//buffer := bufio.NewReader(file)
-	//_, err = buffer.Read(bytes)
-	//if err != nil {
-	//	return err
-	//}
-	//newCf := &ConfigFileType{
-	//	DevFolder:         "",
-	//	Paths:             make(Paths),
-	//	ConfigurationFile: "",
-	//	MaxSubLevels:      0,
-	//}
-	//
-	//if err := json.Unmarshal(bytes, &newCf); err != nil {
-	//	return err
-	//}
-	//for _, p := range newCf.Paths {
-	//	cf.Paths.Set(p)
-	//}
-	//cf.ConfigurationFile = fileName
-	//return nil
 }
 
 func (cf *ConfigFileType) Save() error {
@@ -117,5 +95,6 @@ func (cf *ConfigFileType) Save() error {
 	if err == nil {
 		err = os.WriteFile(cf.ConfigurationFile, folderJson, 0655)
 	}
+	debug.Debug(fmt.Sprintf("Saving %s (error=%v)", cf.ConfigurationFile, err))
 	return err
 }

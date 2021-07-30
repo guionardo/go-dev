@@ -2,6 +2,8 @@ package configuration
 
 import (
 	_ "embed"
+	"fmt"
+	"github.com/guionardo/go-dev/cmd/debug"
 	"strings"
 	"time"
 )
@@ -26,6 +28,7 @@ func LoadMetaData() MetadataType {
 		Version:     getValue("version"),
 		CompileTime: ct,
 	}
+	debug.Debug(fmt.Sprintf("Metadata: %v", MetaData))
 	return MetaData
 }
 

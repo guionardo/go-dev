@@ -1,6 +1,8 @@
 package configuration
 
 import (
+	"fmt"
+	"github.com/guionardo/go-dev/cmd/debug"
 	"github.com/guionardo/go-dev/cmd/utils"
 	"log"
 	"os"
@@ -37,6 +39,8 @@ func SetupBaseEnvironment() error {
 		DefaultFolderConfigFile = path.Join(HomePath, ".dev_folders_go.json")
 		DefaultDevFolder = path.Join(HomePath, "dev")
 		DefaultOutputFile = path.Join(HomePath, ".dev_folders_go.out")
+		debug.Debug(fmt.Sprintf("Defaults: FolderConfigFile=%s DevFolder=%s OutputFile=%s",
+			DefaultFolderConfigFile, DefaultDevFolder, DefaultOutputFile))
 	}
 	utils.SetOutput(DefaultOutputFile)
 
@@ -56,15 +60,22 @@ func SetupEnvironmentVars(devFolder string, configurationFile string) {
 
 func NeedUpdateConfigFile(filename string, force bool) bool {
 	if force {
+		debug.Debug("Forced update config file")
 		return true
 	}
 	info, err := os.Stat(filename)
 	if err != nil {
 		return true
 	}
-	if time.Now().Unix()-info.ModTime().Unix() > MaximumAge {
-		log.Printf("Reloading paths after %v", time.Duration(MaximumAge))
+	fileAge := time.Now().Unix() - info.ModTime().Unix()
+	fileAgeDur, _ := time.ParseDuration(fmt.Sprintf("%ds", fileAge))
+	maxDur, _ := time.ParseDuration(fmt.Sprintf("%ds", MaximumAge))
+	debug.Debug(fmt.Sprintf("Configuration File: %s (%v | %v | %v)", filename, info.ModTime(), fileAge, fileAgeDur))
+
+	if fileAgeDur > maxDur {
+		log.Printf("Reloading paths after %v (%v)", fileAgeDur, maxDur)
 		return true
 	}
+	debug.Debug(fmt.Sprintf("File age (%v) less than (%v). No need to update", fileAge, maxDur))
 	return false
 }

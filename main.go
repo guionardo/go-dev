@@ -3,6 +3,7 @@ package main
 import (
 	command "github.com/guionardo/go-dev/cmd/cli"
 	"github.com/guionardo/go-dev/cmd/configuration"
+	"github.com/guionardo/go-dev/cmd/debug"
 	"github.com/guionardo/go-dev/cmd/utils"
 	"log"
 	"os"
@@ -11,6 +12,7 @@ import (
 )
 
 func main() {
+	debug.Debug("Starting")
 	err := configuration.SetupBaseEnvironment()
 	if err != nil {
 		log.Fatalf("Failed to start: %v", err)
@@ -21,7 +23,6 @@ func main() {
 		Name:        metadata.AppName,
 		Version:     metadata.Version,
 		Compiled:    metadata.CompileTime,
-		//Description: "Go to your projects",
 		Usage: "Go to your projects",
 		Commands: []*cli.Command{
 			command.GoCmd,
@@ -50,6 +51,12 @@ func main() {
 				Usage:       "Output file for command execution",
 				Destination: &utils.OutputFileName,
 			},
+			&cli.BoolFlag{
+				Name:"debug",
+				Value:false,
+				Usage:"Enable debug logging",
+				Destination: &debug.Enabled,
+			},
 		},
 		Before: BeforeMainAction,
 		Action: command.GoAction,
@@ -62,5 +69,6 @@ func main() {
 }
 
 func BeforeMainAction(*cli.Context) error {
+	debug.Debug("")
 	return nil
 }
