@@ -10,6 +10,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"os/user"
 	"path"
 	"path/filepath"
 	"strings"
@@ -73,6 +74,8 @@ func InstallAction(*cli.Context) error {
 	}
 	if err != nil {
 		log.Printf("Install failed: %v\n", err)
+	} else{
+		installCronUpdate()
 	}
 	return err
 }
@@ -212,6 +215,19 @@ func installAlias(goDevShFile string) error {
 	err = os.WriteFile(bashRcAliasesFile, []byte(content), 0655)
 
 	return err
+}
+
+func installCronUpdate() {
+	user, err := user.Current()
+	if err != nil {
+		log.Printf("Failed to read user data")
+		return
+	}
+	log.Printf("Update cron tab with this commands:")
+	log.Printf("1. Open cron tab configurations for your user:")
+	log.Printf("crontab -u ")
+	log.Printf("2. Add this line to crontab:")
+	log.Printf("0 8 * * * %s/.bin/go-dev update", user.HomeDir)
 }
 
 func BeforeInstallAction(context *cli.Context) error {
