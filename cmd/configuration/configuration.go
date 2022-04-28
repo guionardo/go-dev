@@ -3,7 +3,6 @@ package configuration
 import (
 	"errors"
 	"fmt"
-	"github.com/guionardo/go-dev/cmd/utils"
 	"log"
 	"os"
 	"path"
@@ -11,12 +10,14 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/guionardo/go-dev/cmd/utils"
 )
 
 type PathSetup struct {
-	Ignore  bool   `json:"ignore"`
-	Command string `json:"cmd"`
-	Path    string `json:"path"`
+	Ignore  bool   `yaml:"ignore"`
+	Command string `yaml:"cmd"`
+	Path    string `yaml:"path"`
 }
 
 type Paths map[string]PathSetup

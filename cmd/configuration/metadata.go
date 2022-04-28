@@ -3,9 +3,10 @@ package configuration
 import (
 	_ "embed"
 	"fmt"
-	"github.com/guionardo/go-dev/cmd/debug"
 	"strings"
 	"time"
+
+	"github.com/guionardo/go-dev/cmd/debug"
 )
 
 //go:embed metadata.txt
@@ -13,11 +14,27 @@ var metadata string
 
 var MetaData MetadataType
 
+const (
+	AuthorName  = "Guionardo Furlan"
+	AuthorEmail = "guionardo@gmail.com"
+)
+
 type MetadataType struct {
 	AppName     string
 	Version     string
 	BuildDate   string
+	BuilderInfo string
 	CompileTime time.Time
+	AuthorName  string
+	AuthorEmail string
+}
+
+func (metadata *MetadataType) ToString() string {
+	return fmt.Sprintf("%s v%s %s", metadata.AppName, metadata.Version, metadata.BuildDate)
+}
+
+func init() {
+	LoadMetaData()
 }
 
 func LoadMetaData() MetadataType {
@@ -26,7 +43,10 @@ func LoadMetaData() MetadataType {
 		AppName:     getValue("name"),
 		BuildDate:   getValue("build_date"),
 		Version:     getValue("version"),
+		BuilderInfo: getValue("builder_info"),
 		CompileTime: ct,
+		AuthorName:  AuthorName,
+		AuthorEmail: AuthorEmail,
 	}
 	debug.Debug(fmt.Sprintf("Metadata: %v", MetaData))
 	return MetaData

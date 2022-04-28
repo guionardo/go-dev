@@ -1,12 +1,14 @@
 package main
 
 import (
+	"fmt"
+	"log"
+	"os"
+
 	command "github.com/guionardo/go-dev/cmd/cli"
 	"github.com/guionardo/go-dev/cmd/configuration"
 	"github.com/guionardo/go-dev/cmd/debug"
 	"github.com/guionardo/go-dev/cmd/utils"
-	"log"
-	"os"
 
 	"github.com/urfave/cli/v2"
 )
@@ -17,12 +19,14 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to start: %v", err)
 	}
-	
-	var metadata = configuration.LoadMetaData()
+
+	var metadata = configuration.MetaData
 	app := &cli.App{
 		Name:        metadata.AppName,
 		Version:     metadata.Version,
 		Compiled:    metadata.CompileTime,
+		Description: fmt.Sprintf("Builder Info: %s - %s", metadata.BuilderInfo, metadata.BuildDate),
+
 		Usage: "Go to your projects",
 		Commands: []*cli.Command{
 			command.GoCmd,
@@ -33,8 +37,8 @@ func main() {
 		},
 		Authors: []*cli.Author{
 			{
-				Name:  "Guionardo Furlan",
-				Email: "guionardo@gmail.com",
+				Name:  metadata.AuthorName,
+				Email: metadata.AuthorEmail,
 			},
 		},
 		Flags: []cli.Flag{
@@ -52,9 +56,9 @@ func main() {
 				Destination: &utils.OutputFileName,
 			},
 			&cli.BoolFlag{
-				Name:"debug",
-				Value:false,
-				Usage:"Enable debug logging",
+				Name:        "debug",
+				Value:       false,
+				Usage:       "Enable debug logging",
 				Destination: &debug.Enabled,
 			},
 		},

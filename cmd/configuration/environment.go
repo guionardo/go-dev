@@ -2,12 +2,13 @@ package configuration
 
 import (
 	"fmt"
-	"github.com/guionardo/go-dev/cmd/debug"
-	"github.com/guionardo/go-dev/cmd/utils"
 	"log"
 	"os"
 	"path"
 	"time"
+
+	"github.com/guionardo/go-dev/cmd/debug"
+	"github.com/guionardo/go-dev/cmd/utils"
 )
 
 const MaximumAge = 86400
@@ -36,7 +37,7 @@ func SetupBaseEnvironment() error {
 	var err error
 	HomePath, err = os.UserHomeDir()
 	if err == nil {
-		DefaultFolderConfigFile = path.Join(HomePath, ".dev_folders_go.json")
+		DefaultFolderConfigFile = path.Join(HomePath, ".dev_folders_go.yaml")
 		DefaultDevFolder = path.Join(HomePath, "dev")
 		DefaultOutputFile = path.Join(HomePath, ".dev_folders_go.out")
 		debug.Debug(fmt.Sprintf("Defaults: FolderConfigFile=%s DevFolder=%s OutputFile=%s",

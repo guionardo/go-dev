@@ -1,20 +1,21 @@
 package configuration
 
 import (
-	"encoding/json"
 	"fmt"
-	"github.com/guionardo/go-dev/cmd/debug"
-	"github.com/guionardo/go-dev/cmd/utils"
 	"log"
 	"os"
 	"time"
+
+	"github.com/guionardo/go-dev/cmd/debug"
+	"github.com/guionardo/go-dev/cmd/utils"
+	"gopkg.in/yaml.v2"
 )
 
 type ConfigFileType struct {
-	DevFolder         string `json:"dev_folder,omitempty"`
-	Paths             Paths  `json:"paths,omitempty"`
-	ConfigurationFile string `json:"configuration_file,omitempty"`
-	MaxSubLevels      int    `json:"max_sub_levels,omitempty"`
+	DevFolder         string `yaml:"dev_folder,omitempty"`
+	Paths             Paths  `yaml:"paths,omitempty"`
+	ConfigurationFile string `yaml:"configuration_file,omitempty"`
+	MaxSubLevels      int    `yaml:"max_sub_levels,omitempty"`
 }
 
 var DefaultConfig = &ConfigFileType{
@@ -73,7 +74,7 @@ func (cf *ConfigFileType) Load(fileName string) error {
 			ConfigurationFile: "",
 			MaxSubLevels:      0,
 		}
-		if err = json.Unmarshal(fileContent, &newCf); err == nil {
+		if err = yaml.Unmarshal(fileContent, &newCf); err == nil {
 			if cf.Paths == nil {
 				cf.Paths = make(Paths)
 			}
@@ -91,9 +92,9 @@ func (cf *ConfigFileType) Load(fileName string) error {
 }
 
 func (cf *ConfigFileType) Save() error {
-	folderJson, err := json.Marshal(cf)
+	folderYaml, err := yaml.Marshal(cf)
 	if err == nil {
-		err = os.WriteFile(cf.ConfigurationFile, folderJson, 0655)
+		err = os.WriteFile(cf.ConfigurationFile, folderYaml, 0655)
 	}
 	debug.Debug(fmt.Sprintf("Saving %s (error=%v)", cf.ConfigurationFile, err))
 	return err
