@@ -32,7 +32,8 @@ func (c *Config) Save(filename string) error {
 	content, err := yaml.Marshal(c)
 	if err == nil {
 		configDir := path.Dir(filename)
-		if stat, err := os.Stat(configDir); os.IsNotExist(err) || !stat.IsDir() {
+		var stat os.FileInfo
+		if stat, err = os.Stat(configDir); os.IsNotExist(err) || !stat.IsDir() {
 			err = os.MkdirAll(configDir, 0755)
 		}
 		if err == nil {
