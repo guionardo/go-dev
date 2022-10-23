@@ -25,6 +25,60 @@
         "--command",
         "vscode"
       ]
+    },
+    {
+      "name": "Setup add dev",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}",
+      "args": [
+        "-c",
+        "./go-dev-dev.yaml",
+        "setup",
+        "add-folder",
+        "/home/guionardo/dev"
+      ]
+    },
+    {
+      "name": "Sync",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}",
+      "args": ["-c", "./go-dev-dev.yaml", "sync"]
+    },
+    {
+      "name": "Setup autosync",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}",
+      "args": ["-c", "./go-dev-dev.yaml", "setup", "auto-sync", "-i", "5"]
+    },
+    {
+      "name": "Go",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}",
+      "args": ["--debug", "go", "estoque"]
+    },
+    {
+      "name": "Init",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}",
+      "args": ["init"]
+    },
+    {
+      "name": "Setup Shell",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}",
+      "args": ["setup", "shell"]
     }
   ]
 }

@@ -72,3 +72,4 @@ case $1 in
 esac
 #get_key "version"
 #set_key "name" "go-dev-2"
+set_key "builder_info" $USER@$(hostname)

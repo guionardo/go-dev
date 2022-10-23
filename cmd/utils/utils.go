@@ -14,6 +14,13 @@ func PathExists(path string) bool {
 	return err == nil && info.IsDir()
 }
 
+func CreatePath(path string) error {
+	if PathExists(path) {
+		return nil
+	}
+	return os.Mkdir(path, 0666)
+}
+
 func FileExists(fileName string) bool {
 	info, err := os.Stat(fileName)
 	return err == nil && !info.IsDir()
@@ -60,4 +67,11 @@ func Filter(vs []string, f func(string) bool) []string {
 		}
 	}
 	return filtered
+}
+
+func ReplaceAll(text string, replaces map[string]string) string {
+	for _, key := range replaces {
+		text = strings.ReplaceAll(text, key, replaces[key])
+	}
+	return text
 }

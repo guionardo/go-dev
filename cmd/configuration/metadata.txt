@@ -1,3 +1,4 @@
 name=go-dev
-version=1.2.0
-build_date=2021-10-03T07:10:15
+version=1.7.0
+build_date=2022-10-23T08:11:19
+builder_info=guionardo@guio-notehp

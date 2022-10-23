@@ -3,9 +3,10 @@ package configuration
 import (
 	_ "embed"
 	"fmt"
-	"github.com/guionardo/go-dev/cmd/debug"
 	"strings"
 	"time"
+
+	"github.com/guionardo/go-dev/pkg/logger"
 )
 
 //go:embed metadata.txt
@@ -14,21 +15,21 @@ var metadata string
 var MetaData MetadataType
 
 type MetadataType struct {
-	AppName     string
-	Version     string
-	BuildDate   string
+	BuilderInfo string
 	CompileTime time.Time
+}
+
+func init() {
+	LoadMetaData()
 }
 
 func LoadMetaData() MetadataType {
 	ct, _ := time.Parse("2006-01-02T15:04:05", getValue("build_date"))
 	MetaData = MetadataType{
-		AppName:     getValue("name"),
-		BuildDate:   getValue("build_date"),
-		Version:     getValue("version"),
+		BuilderInfo: getValue("builder_info"),
 		CompileTime: ct,
 	}
-	debug.Debug(fmt.Sprintf("Metadata: %v", MetaData))
+	logger.Debug(fmt.Sprintf("Metadata: %v", MetaData))
 	return MetaData
 }
 
