@@ -2,6 +2,7 @@ package arrays
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -20,7 +21,7 @@ func (a StringArray) IndexOfPrefix(prefix string) int {
 	return -1
 }
 
-func (a StringArray) SaveToFile(filename string) error {
+func (a *StringArray) SaveToFile(filename string) error {
 	file, err := os.Create(filename)
 	if err != nil {
 		return err
@@ -28,27 +29,51 @@ func (a StringArray) SaveToFile(filename string) error {
 	defer file.Close()
 
 	w := bufio.NewWriter(file)
-	for _, line := range a {
+	for _, line := range a.array {
 		fmt.Fprintln(w, line)
 	}
 	return w.Flush()
 }
 
-func LoadFromFile(filename string) (array StringArray, err error) {
+func LoadFromFile(filename string) (array *StringArray, err error) {
 	file, err := os.Open(filename)
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
 
-	array = make([]string, 0)
+	ar := make([]string, 0, 200)
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		array = append(array, scanner.Text())
+		ar = append(ar, scanner.Text())
 	}
-	return array, scanner.Err()
+	return &StringArray{ar}, scanner.Err()
 }
 
-func (a StringArray) RemoveItem(index int) (array StringArray){
+func (a *StringArray) AppendItem(line string) *StringArray {
+	a.array = append(a.array, line)
+	return a
+}
 
+func (a *StringArray) UpdateItem(lineNo int, line string) *StringArray {
+	a.array[lineNo] = line
+	return a
+}
+
+func (a *StringArray) RemoveItem(index int) *StringArray {
+	a.array = append(a.array[:index], a.array[index+1:]...)
+	return a
+}
+
+func (a *StringArray) FindByLine(finder func(line string) bool) (lineNumber int, lineContent string, err error) {
+	for i, line := range a.array {
+		if finder(line) {
+			lineNumber = i
+			lineContent = line
+			return
+		}
+	}
+
+	err = errors.New("Line not found")
+	return
 }

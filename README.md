@@ -56,3 +56,7 @@ GLOBAL OPTIONS:
 
 * https://github.com/marketplace/actions/go-release-binaries
 * https://pkg.go.dev/github.com/urfave/cli/v2#App
+
+## Dependency
+
+go install github.com/goreleaser/goreleaser@latest

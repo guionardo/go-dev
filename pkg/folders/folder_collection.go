@@ -11,9 +11,9 @@ import (
 )
 
 type FolderCollection struct {
-	Root        string             `yaml:"root"`
-	Folders     map[string]*Folder `yaml:"folders"`
-	MaxSubLevel int                `yaml:"maxSubLevel"`
+	Root     string             `yaml:"root"`
+	Folders  map[string]*Folder `yaml:"folders"`
+	MaxDepth int                `yaml:"maxSubLevel"`
 }
 
 func (fc *FolderCollection) FixPathsLoad() {
@@ -27,14 +27,14 @@ func CreateCollection(root string, maxSubLevel int) *FolderCollection {
 		maxSubLevel = 3
 	}
 	return &FolderCollection{
-		Root:        root,
-		Folders:     make(map[string]*Folder, 0),
-		MaxSubLevel: maxSubLevel,
+		Root:     root,
+		Folders:  make(map[string]*Folder, 0),
+		MaxDepth: maxSubLevel,
 	}
 }
 
 func (fc *FolderCollection) Sync() error {
-	existingFolders, err := io.ReadFolders(fc.Root, fc.MaxSubLevel)
+	existingFolders, err := io.ReadFolders(fc.Root, fc.MaxDepth)
 	if err != nil {
 		return err
 	}

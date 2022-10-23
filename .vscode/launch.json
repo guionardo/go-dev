@@ -62,7 +62,7 @@
       "request": "launch",
       "mode": "auto",
       "program": "${workspaceFolder}",
-      "args": ["-c", "./go-dev-dev.yaml", "go", "estoque"]
+      "args": ["--debug", "go", "estoque"]
     },
     {
       "name": "Init",
@@ -71,6 +71,14 @@
       "mode": "auto",
       "program": "${workspaceFolder}",
       "args": ["init"]
+    },
+    {
+      "name": "Setup Shell",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}",
+      "args": ["setup", "shell"]
     }
   ]
 }

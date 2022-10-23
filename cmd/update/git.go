@@ -6,19 +6,20 @@ import (
 	"net/http"
 
 	"github.com/google/go-github/v45/github"
+	"github.com/guionardo/go-dev/pkg/consts"
 )
 
-
-func getGithubVersion() (string,error){
-	client:=github.NewClient(http.DefaultClient)
-	release,response,err:=client.Repositories.GetLatestRelease(context.Background(),"guionardo", "go-dev")
-	if err!=nil{
+// TODO: Implementar update via github
+func getGithubVersion() (string, error) {
+	client := github.NewClient(http.DefaultClient)
+	release, response, err := client.Repositories.GetLatestRelease(context.Background(), "guionardo", consts.AppName)
+	if err != nil {
 		log.Printf("Failed to get latest release: %v", err)
-		return "",err
+		return "", err
 	}
-	if response.StatusCode!=http.StatusOK{
+	if response.StatusCode != http.StatusOK {
 		log.Printf("Failed to get latest release: %v", response.StatusCode)
-		return "",err
+		return "", err
 	}
-	return release.GetTagName(),nil
+	return release.GetTagName(), nil
 }

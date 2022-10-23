@@ -3,6 +3,7 @@ package commands
 import (
 	"github.com/guionardo/go-dev/cmd/actions"
 	"github.com/guionardo/go-dev/cmd/ctx"
+	"github.com/guionardo/go-dev/pkg/consts"
 	"github.com/urfave/cli/v2"
 )
 
@@ -14,12 +15,17 @@ func GetGoCommand() *cli.Command {
 		Action: actions.GoAction,
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
-				Name:  "just-cd",
+				Name:  consts.FlagJustCD,
 				Usage: "Just go to folder, skip custom command",
 			},
 			&cli.BoolFlag{
-				Name:  "open",
+				Name:  consts.FlagOpen,
 				Usage: "Opens folder into file browser",
+			},
+			&cli.StringFlag{
+				Name:     consts.FlagOutput,
+				Usage:    "File to save command output",
+				Required: false,
 			},
 		},
 	}

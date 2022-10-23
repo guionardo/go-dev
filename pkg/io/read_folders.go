@@ -5,22 +5,40 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"time"
 
+	"github.com/guionardo/go-dev/pkg/logger"
 	"github.com/schollz/progressbar/v3"
 )
 
 func ReadFolders(root string, maxSubLevel int) ([]string, error) {
-	bar := progressbar.Default(-1, "Reading folders "+root)
-	defer bar.Finish()
+	intTerm := IsRunningFromInteractiveTerminal() && !logger.IsDebugMode()
+	var bar *progressbar.ProgressBar
+	noIntLog := "Reading folders " + root
+	startTime := time.Now()
+
 	devFolderLevel := len(strings.Split(root, string(os.PathSeparator)))
 	_subFolders := make([]string, 0, 1000)
+
+	if intTerm {
+		bar = progressbar.Default(-1, noIntLog)
+	}
+	defer func() {
+		if bar != nil {
+			bar.Finish()
+		}
+		logger.Info("%s took %v to get %d folders", noIntLog, time.Since(startTime).String(), len(_subFolders))
+	}()
 	err := filepath.WalkDir(path.Join(root, "."),
 		func(path string, info os.DirEntry, err error) error {
-			bar.Add(1)
+			if intTerm {
+				bar.Add(1)
+			}
 			if err == nil && info.IsDir() && !DirectoryHasHiddenFolder(path) {
 				folderLevel := len(strings.Split(path, "/"))
 				if folderLevel-devFolderLevel <= maxSubLevel {
 					_subFolders = append(_subFolders, path)
+					logger.Debug("%s", path)
 				}
 			}
 			return nil

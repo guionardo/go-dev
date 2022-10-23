@@ -4,6 +4,7 @@ import (
 	"os"
 	"path"
 
+	"github.com/guionardo/go-dev/pkg/consts"
 	"github.com/guionardo/go-dev/pkg/folders"
 )
 
@@ -19,8 +20,8 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	DefaultConfigFile = path.Join(home, ".config", "go-dev", "go-dev.yaml")
-	DefaultOutputFile = path.Join(home, ".config", "go-dev", "output.sh")
+	DefaultConfigFile = path.Join(home, ".config", consts.AppName, consts.AppName+".yaml")
+	DefaultOutputFile = path.Join(home, ".config", consts.AppName, consts.AppName+".sh")
 }
 
 func GetDefaultConfig() *Config {

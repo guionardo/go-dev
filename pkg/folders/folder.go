@@ -34,3 +34,11 @@ func (f *Folder) Match(words []string) bool {
 	}
 	return true
 }
+
+func (f *Folder) SetCommand(cmd string) {
+	if command, ok := AllowedCommandsFunctions[cmd]; ok {
+		f.Command = command(f.Path)
+		return
+	}
+	f.Command = cmd
+}

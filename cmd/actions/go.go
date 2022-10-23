@@ -3,12 +3,13 @@ package actions
 import (
 	"errors"
 	"fmt"
-	"log"
 	"sort"
 
 	"github.com/guionardo/go-dev/cmd/ctx"
 	"github.com/guionardo/go-dev/cmd/utils"
+	"github.com/guionardo/go-dev/pkg/consts"
 	"github.com/guionardo/go-dev/pkg/folders"
+	"github.com/guionardo/go-dev/pkg/logger"
 	"github.com/urfave/cli/v2"
 )
 
@@ -45,12 +46,7 @@ func GoAction(c *cli.Context) error {
 			maxDevFolder = len(df)
 		}
 	}
-	// for df, coll := range c2.Config.DevFolders {
-	// 	if folder, ok = coll.Folders[choosed_folder]; ok {
-	// 		devFolder = df
-	// 		break
-	// 	}
-	// }
+
 	sort.Strings(match)
 	choosed_folder := utils.FolderChoice(match, maxDevFolder)
 	if len(choosed_folder) == 0 {
@@ -62,9 +58,9 @@ func GoAction(c *cli.Context) error {
 		}
 	}
 
-	openFolder := c.Bool("open-folder")
-	justCD := c.Bool("just-cd")
-	output := c.String("output")
+	openFolder := c.Bool(consts.FlagOpen)
+	justCD := c.Bool(consts.FlagJustCD)
+	output := c.String(consts.FlagOutput)
 	utils.SetOutput(output)
 	command := parseCommand(folder, openFolder, justCD)
 
@@ -83,6 +79,6 @@ func parseCommand(folder *folders.Folder, justOpenFolder bool, justCD bool) stri
 	if (!justCD) && len(folder.Command) > 0 {
 		command = fmt.Sprintf("%s && %s", command, folder.Command)
 	}
-	log.Printf("Running command: %s\n", command)
+	logger.Debug("Running command: %s\n", command)
 	return command
 }
