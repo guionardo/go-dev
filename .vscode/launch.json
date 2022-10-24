@@ -32,9 +32,7 @@
       "request": "launch",
       "mode": "auto",
       "program": "${workspaceFolder}",
-      "args": [
-        "-c",
-        "./go-dev-dev.yaml",
+      "args": [        
         "setup",
         "add-folder",
         "/home/guionardo/dev"

@@ -39,6 +39,9 @@ func SetupAddFolderAction(c *cli.Context) error {
 	if err := collection.Sync(); err != nil {
 		return err
 	}
+	if c2.Config.DevFolders == nil {
+		c2.Config.DevFolders = make(map[string]*folders.FolderCollection)
+	}
 	c2.Config.DevFolders[folderName] = collection
 	return c2.Config.Save(c2.ConfigFile)
 
