@@ -1,24 +1,12 @@
-# .github/workflows/release.yaml
-
 on:
   release:
     types: [created]
 
 jobs:
-  # release-linux-amd64:
-  #   name: release linux/amd64
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - uses: wangyoucao577/go-release-action@v1.32
-  #       with:
-  #         github_token: ${{ secrets.GITHUB_TOKEN }}
-  #         goos: linux
-  #         goarch: amd64
 
   releases-matrix:
     name: Release Go Binary
-    runs-on: ubuntu-latest    
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         # build and publish in parallel: linux/386, linux/amd64, linux/arm64, windows/386, windows/amd64, darwin/amd64, darwin/arm64
@@ -29,14 +17,6 @@ jobs:
             goos: windows
     steps:
       - uses: actions/checkout@v3
-      - name: Set Build information envs
-        run: |
-          echo "APP_VERSION=$(echo ${GITHUB_REF} | rev | cut -d'/' -f 1 | rev )" >> $GITHUB_ENV
-          echo BUILD_DATE=$(date "+%Y-%m-%dT%H:%M:%S") >> $GITHUB_ENV
-          echo BUILD_RUNNER=github >> $GITHUB_ENV
-      - name: View build information
-        run: |
-          echo "Build information: v${{ env.APP_VERSION }} - ${{ env.BUILD_RUNNER }} @ ${{ env.BUILD_DATE }}"
       - uses: wangyoucao577/go-release-action@v1.32
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -45,4 +25,3 @@ jobs:
           goversion: "https://dl.google.com/go/go1.19.2.linux-amd64.tar.gz"
           extra_files: LICENSE README.md
           build_flags: -v
-          ldflags: -X "main.release=${{ env.APP_VERSION }}" -X "main.build_date=${{ env.BUILD_DATE }}" -X main.build_runner=${{ env.BUILD_RUNNER }}

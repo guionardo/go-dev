@@ -14,9 +14,9 @@ func SetupCli() *cli.App {
 
 	app := &cli.App{
 		Name:        consts.AppName,
-		Version:     consts.Version,
-		Compiled:    consts.CompileTime,
-		Description: fmt.Sprintf("Builder Info: %s - %v", consts.BuildRunner, consts.CompileTime),
+		Version:     consts.Metadata.Version,
+		Compiled:    consts.Metadata.BuildTime,
+		Description: fmt.Sprintf("Builder Info: %s - %s", consts.Metadata.BuildRunner, consts.Metadata.BuildTime.Format("2006-01-02 15:04:05")),
 		Usage:       "Go to your projects",
 		Before:      ctx.ChainedActions(ctx.SetupContext),
 		Action:      actions.GoAction,
