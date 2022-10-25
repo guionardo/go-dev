@@ -17,7 +17,7 @@ func Test_getGithubVersion(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := getGithubVersion()
+			got, _, err := getGithubVersion()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("getGithubVersion() error = %v, wantErr %v", err, tt.wantErr)
 				return

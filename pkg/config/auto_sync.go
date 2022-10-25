@@ -2,15 +2,15 @@ package config
 
 import "time"
 
-type AutoSync struct {
+type IntervalRunner struct {
 	Interval time.Duration `yaml:"interval"`
 	LastRun  time.Time     `yaml:"last_run"`
 }
 
-func (a *AutoSync) ShouldRun() bool {
+func (a *IntervalRunner) ShouldRun() bool {
 	return a.Interval > 0 && time.Now().Sub(a.LastRun) >= a.Interval
 }
 
-func (a *AutoSync) Run() {
+func (a *IntervalRunner) Run() {
 	a.LastRun = time.Now()
 }

@@ -10,7 +10,8 @@ import (
 
 type Config struct {
 	DevFolders map[string]*folders.FolderCollection `yaml:"dev_folders"`
-	AutoSync   AutoSync                             `yaml:"auto_sync"`
+	AutoSync   IntervalRunner                       `yaml:"auto_sync"`
+	AutoUpdate IntervalRunner                       `yaml:"auto_update"`
 }
 
 func LoadConfigFile(filename string) (config *Config, err error) {
