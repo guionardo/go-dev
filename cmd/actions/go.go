@@ -72,7 +72,7 @@ func GoAction(c *cli.Context) error {
 func parseCommand(folder *folders.Folder, justOpenFolder bool, justCD bool) string {
 
 	if justOpenFolder {
-		return fmt.Sprintf("xdg-open \"%s\"", folder.Path)
+		return folders.AllowedCommandsFunctions["explorer"](folder.Path)
 	}
 	command := fmt.Sprintf("cd \"%s\"", folder.Path)
 

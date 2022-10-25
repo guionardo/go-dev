@@ -1,6 +1,9 @@
 package config
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type IntervalRunner struct {
 	Interval time.Duration `yaml:"interval"`
@@ -13,4 +16,8 @@ func (a *IntervalRunner) ShouldRun() bool {
 
 func (a *IntervalRunner) Run() {
 	a.LastRun = time.Now()
+}
+
+func (a *IntervalRunner) String() string {
+	return fmt.Sprintf("Interval: %s, LastRun: %s", a.Interval, a.LastRun.Format("2006-01-02 15:04:05"))
 }

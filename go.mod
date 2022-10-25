@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/google/go-github/v45 v45.2.0
+	github.com/guionardo/go-gstools v0.7.13
 	github.com/mattn/go-isatty v0.0.16
 	github.com/schollz/progressbar/v3 v3.11.0
 	github.com/urfave/cli/v2 v2.20.3

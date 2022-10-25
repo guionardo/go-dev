@@ -12,11 +12,16 @@ type Folder struct {
 	Command          string `yaml:"cmd"`
 }
 
-func (f *Folder) ToString() string {
+func (f *Folder) String() string {
+	ignored := ""
 	if f.Ignore {
-		return fmt.Sprintf("Path: %s [IGNORED]", f.Path)
+		ignored = " [IGNORED]"		
 	}
-	return fmt.Sprintf("Path: %s [Command=%s]", f.Path, f.Command)
+	command := ""
+	if f.Command != "" {
+		command = fmt.Sprintf(" [CMD: %s]", f.Command)
+	}
+	return fmt.Sprintf("Path: %s%s%s", f.Path, ignored, command)
 }
 
 func (f *Folder) Match(words []string) bool {

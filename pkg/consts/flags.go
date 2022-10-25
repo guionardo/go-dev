@@ -11,4 +11,5 @@ const (
 	FlagCommand        = "command"
 	FlagDisable        = "disable"
 	FlagInterval       = "interval"
+	FlagNoFolders      = "no-folders"
 )

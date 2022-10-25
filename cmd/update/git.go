@@ -14,22 +14,22 @@ import (
 	"github.com/google/go-github/v45/github"
 	"github.com/guionardo/go-dev/pkg/consts"
 	"github.com/guionardo/go-dev/pkg/logger"
-	"github.com/guionardo/go-dev/pkg/tools"
+	"github.com/guionardo/go-gstools/version"
 	"github.com/schollz/progressbar/v3"
 )
 
 func RunGitUpdate() error {
-	version, url, err := getGithubVersion()
+	v, url, err := getGithubVersion()
 	if err != nil {
 		logger.Error("Error getting version from github: %s", err)
 		return nil
 	}
-	logger.Debug("GitHub update - local version: %s - remote version: %s", consts.Version, version)
-	vLocal, err := tools.VersionParse(consts.Version)
+	logger.Debug("GitHub update - local version: %s - remote version: %s", consts.Metadata.Version, v)
+	vLocal, err := version.VersionParse(consts.Metadata.Version)
 	if err != nil {
-		vLocal = tools.NewVersion(0, 0, 0)
+		vLocal = version.NewVersion(0, 0, 0)
 	}
-	vRemote, err := tools.VersionParse(version)
+	vRemote, err := version.VersionParse(v)
 	if err != nil {
 		logger.Error("Error parsing version from github: %s", err)
 		return nil
@@ -73,7 +73,7 @@ func RunGitUpdate() error {
 		logger.Error("Error finding executable file")
 		return nil
 	}
-	var downloadedVersion tools.Version
+	var downloadedVersion version.Version
 	if downloadedVersion, err = testVersion(binary_file); err != nil {
 		logger.Error("Error testing version: %s", err)
 		return nil
@@ -87,7 +87,7 @@ func RunGitUpdate() error {
 	return nil
 }
 
-func testVersion(filename string) (version tools.Version, err error) {
+func testVersion(filename string) (v version.Version, err error) {
 	logger.Debug("Testing version: %s", filename)
 	err = os.Chmod(filename, 0755)
 	if err != nil {
@@ -96,26 +96,26 @@ func testVersion(filename string) (version tools.Version, err error) {
 	cmd := exec.Command(filename, "--version")
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		return version, err
+		return v, err
 	}
 	if err := cmd.Start(); err != nil {
-		return version, err
+		return v, err
 	}
 	rawVersion, err := ioutil.ReadAll(stdout)
 	if err != nil {
-		return version, err
+		return v, err
 	}
-	version, err = tools.VersionParse(string(rawVersion))
+	v, err = version.VersionParse(string(rawVersion))
 	if err != nil {
 		return
 	}
 
-	logger.Debug("Version: %s", version)
+	logger.Debug("Version: %s", v)
 	return
 }
 
 // TODO: Implementar update via github
-func getGithubVersion() (version string, releaseUrl string, err error) {
+func getGithubVersion() (v string, releaseUrl string, err error) {
 	client := github.NewClient(http.DefaultClient)
 	release, response, err := client.Repositories.GetLatestRelease(context.Background(), "guionardo", consts.AppName)
 	if err != nil {

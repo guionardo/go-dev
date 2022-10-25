@@ -12,6 +12,7 @@ func GetSyncCommand() *cli.Command {
 		Name:   "sync",
 		Usage:  "Sync go-dev",
 		Before: ctx.ChainedActions(ctx.AssertConfigExists),
+		After:  ctx.ChainedActions(ctx.AssertSaveIfNotError),
 		Action: actions.SyncAction,
 		Flags: []cli.Flag{
 			&cli.IntFlag{

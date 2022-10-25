@@ -11,10 +11,42 @@ import (
 	"github.com/schollz/progressbar/v3"
 )
 
-func ReadFolders(root string, maxSubLevel int) ([]string, error) {
+func ReadFolders(root string, maxSubLevel int) (subFolders []string, err error) {
 	intTerm := IsRunningFromInteractiveTerminal() && !logger.IsDebugMode()
 	var bar *progressbar.ProgressBar
-	noIntLog := "Reading folders " + root
+	logger.Info("Reading folders from %s (depth=%d)", root, maxSubLevel)
+	noIntLog := "Reading"
+	startTime := time.Now()
+	if intTerm {
+		bar = progressbar.Default(-1, noIntLog)
+	}
+	defer func() {
+		if bar != nil {
+			bar.Finish()
+		}
+		logger.Info("%s took %v to get %d folders", noIntLog, time.Since(startTime).String(), len(subFolders))
+	}()
+
+	subFolders, err = FolderReaderReadDir(root, maxSubLevel,
+		func(name string) bool {
+			if intTerm {
+				bar.Add(1)
+			}
+			return !strings.HasPrefix(name, ".") && !strings.HasPrefix(name, "_")
+		},
+		func(name string) {
+			logger.Debug("%s", name)
+		})
+
+	return
+
+}
+
+func ReadFolders_(root string, maxSubLevel int) ([]string, error) {
+	intTerm := IsRunningFromInteractiveTerminal() && !logger.IsDebugMode()
+	var bar *progressbar.ProgressBar
+	logger.Info("Reading folders from %s (depth=%d)", root, maxSubLevel)
+	noIntLog := "Reading"
 	startTime := time.Now()
 
 	devFolderLevel := len(strings.Split(root, string(os.PathSeparator)))
@@ -57,36 +89,3 @@ func DirectoryHasHiddenFolder(directory string) bool {
 	}
 	return false
 }
-
-// func (pc *Paths) ReadFolders(devFolder string, maxSubLevel int) error {
-// 	devFolder, err := filepath.Abs(devFolder)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	log.Printf("Reading folders: %s\n", devFolder)
-// 	devFolderLevel := len(strings.Split(devFolder, string(os.PathSeparator)))
-// 	var _subFolders []string
-// 	err = filepath.WalkDir(path.Join(devFolder, "."),
-// 		func(path string, info os.DirEntry, err error) error {
-// 			if err == nil && info.IsDir() && !DirectoryHasHiddenFolder(path) {
-// 				folderLevel := len(strings.Split(path, "/"))
-// 				if folderLevel-devFolderLevel < maxSubLevel {
-// 					_subFolders = append(_subFolders, path)
-// 				}
-// 			}
-// 			return nil
-// 		})
-// 	if err != nil {
-// 		return err
-// 	}
-// 	for _, folder := range _subFolders {
-// 		_, err := pc.Get(folder)
-// 		if err != nil {
-// 			if err = pc.Set(PathSetup{Path: folder}); err != nil {
-// 				log.Printf("Failed to add folder %s - %v", folder, err)
-// 			}
-// 		}
-// 	}
-// 	log.Printf("%d folders readen", len(_subFolders))
-// 	return nil
-// }

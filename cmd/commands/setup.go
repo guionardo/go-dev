@@ -23,6 +23,7 @@ func GetSetupCommand() *cli.Command {
 			GetSetupShellCommand(),
 			GetSetupAutoUpdateCommand(),
 			GetSetupDoGitUpdateCommand(),
+			GetSetupShowCommand(),
 		},
 	}
 }
@@ -63,6 +64,7 @@ func GetSetupUpdateFolderCommand() *cli.Command {
 		Name:      "update-folder",
 		Usage:     "Add a folder to go-dev",
 		Action:    actions.SetupUpdateFolderAction,
+		After:     ctx.ChainedActions(ctx.AssertSaveIfNotError),
 		ArgsUsage: "[folder default=" + currentFolder + "]",
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
@@ -122,7 +124,6 @@ func GetSetupAutoUpdateCommand() *cli.Command {
 	}
 }
 
-
 func GetSetupShellCommand() *cli.Command {
 	return &cli.Command{
 		Name:  "shell",
@@ -144,5 +145,19 @@ func GetSetupDoGitUpdateCommand() *cli.Command {
 		Name:   "do-git-update",
 		Usage:  "Update go-dev",
 		Action: actions.SetupDoGitUpdateAction,
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:    consts.FlagNoFolders,
+				Aliases: []string{"n"},
+			},
+		},
+	}
+}
+
+func GetSetupShowCommand() *cli.Command {
+	return &cli.Command{
+		Name:   "show",
+		Usage:  "Show go-dev configuration",
+		Action: actions.SetupShowAction,
 	}
 }

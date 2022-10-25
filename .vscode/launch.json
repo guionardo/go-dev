@@ -32,11 +32,7 @@
       "request": "launch",
       "mode": "auto",
       "program": "${workspaceFolder}",
-      "args": [        
-        "setup",
-        "add-folder",
-        "/home/guionardo/dev"
-      ]
+      "args": ["setup", "add-folder", "/home/guionardo/dev"]
     },
     {
       "name": "Sync",
@@ -44,7 +40,12 @@
       "request": "launch",
       "mode": "auto",
       "program": "${workspaceFolder}",
-      "args": ["-c", "./go-dev-dev.yaml", "sync"]
+      "args": [
+        "--debug",
+        "--config-file",
+        "/home/guionardo/.config/go-dev/go-dev.yaml",
+        "sync"
+      ]
     },
     {
       "name": "Setup autosync",
@@ -85,6 +86,22 @@
       "mode": "auto",
       "program": "${workspaceFolder}",
       "args": ["--debug", "setup", "do-git-update"]
+    },
+    {
+      "name": "Update",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}",
+      "args": [
+        "--debug",
+        "--config-file",
+        "/home/guionardo/.config/go-dev/go-dev.yaml",
+        "setup",
+        "update-folder",
+        "--ignore-children",
+        "/home/guionardo/dev/b2b/b2b-file-receiver-promax"
+      ]
     }
   ]
 }

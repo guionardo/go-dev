@@ -50,9 +50,6 @@ func SetupAddFolderAction(c *cli.Context) error {
 
 func SetupUpdateFolderAction(c *cli.Context) (err error) {
 	c2 := ctx.GetContext(c)
-	if c.NArg() < 1 {
-		return fmt.Errorf("Missing folder name")
-	}
 	folderName := c.Args().First()
 	if folderName == "" {
 		folderName, _ = os.Getwd()
@@ -61,8 +58,10 @@ func SetupUpdateFolderAction(c *cli.Context) (err error) {
 		return fmt.Errorf("Folder %s not found", folderName)
 	}
 	var folder *folders.Folder
+	var currentCollection *folders.FolderCollection
 	for _, collection := range c2.Config.DevFolders {
 		if folder, err = collection.Get(folderName); folder != nil {
+			currentCollection = collection
 			break
 		}
 	}
@@ -82,8 +81,14 @@ func SetupUpdateFolderAction(c *cli.Context) (err error) {
 	if !changed {
 		return errors.New("Nothing to update")
 	}
+	logger.Info("Updating folder %v", folder)
 
-	return c2.Config.Save(c2.ConfigFile)
+	if folder.IgnoreSubFolders {
+		
+		currentCollection.FixIgnored()
+	}
+
+	return nil
 }
 
 func SetupAutoSyncAction(c *cli.Context) error {
@@ -181,4 +186,20 @@ func SetupDoGitUpdateAction(c *cli.Context) error {
 	}
 	c2.Config.AutoUpdate.Run()
 	return c2.Config.Save(c2.ConfigFile)
+}
+
+func SetupShowAction(c *cli.Context) error {
+	c2 := ctx.GetContext(c)
+	fmt.Printf("%s v%s", consts.AppName, consts.Metadata.Version)
+	fmt.Printf("Configuration: %s\n", c2.ConfigFile)
+	fmt.Printf("AutoSync: %s\n", &c2.Config.AutoSync)
+	fmt.Printf("AutoUpdate: %s\n", &c2.Config.AutoUpdate)
+	for _, collection := range c2.Config.DevFolders {
+		fmt.Printf("%s\n", collection)
+		if !c.Bool(consts.FlagNoFolders) {
+			fmt.Printf("Folders:\n%s", &c2.Config.DevFolders)
+		}
+
+	}
+	return nil
 }

@@ -5,6 +5,7 @@ import (
 	"path"
 
 	"github.com/guionardo/go-dev/pkg/folders"
+	"github.com/guionardo/go-dev/pkg/logger"
 	"gopkg.in/yaml.v2"
 )
 
@@ -41,5 +42,6 @@ func (c *Config) Save(filename string) error {
 			err = os.WriteFile(filename, content, 0644)
 		}
 	}
+	logger.Debug("Saving config to %s - error=%v", filename, err)
 	return err
 }

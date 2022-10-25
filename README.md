@@ -10,20 +10,37 @@ Just go in terminal and "dev my_project", and the tool will find the project int
 
 ## Installing
 
-Docker must be available.
+### Using go install
 
-```shell
- bash <(curl -s https://raw.githubusercontent.com/guionardo/go-dev/develop/install.sh)
+```bash
+go install github.com/guionardo/go-dev
+``` 
+
+### Download from releases
+
+Only for linux-amd64
+
+Go to [release page](https://github.com/guionardo/go-dev/releases) and download the latest go-dev-v*-linux-amd64.tar.gx
+
+Extract the go-dev file into a folder. Assure that this folder is in PATH variable.
+
+## Check the installation
+
+```bash
+❯ go-dev --version
+go-dev version 0.0.0
 ```
+
+
 
 ## Environment
 
-* GO_DEV_CONFIG = Configuration file (default = ~/.dev_folders_go.json)
+* GO_DEV_CONFIG = Configuration file (default = ~/.config/go-dev/go-dev.yaml)
 
 ## Commands
 
 ```shell
-└─ $ ▶ bin/go-dev help
+❯ go-dev --help
 NAME:
    go-dev - Go to your projects
 
@@ -31,32 +48,26 @@ USAGE:
    go-dev [global options] command [command options] [arguments...]
 
 VERSION:
-   1.0.0
+   1.3.0
+
+DESCRIPTION:
+   Builder Info: guionardo@ambevtech-guionardo - 2022-10-24 19:09:36
 
 AUTHOR:
    Guionardo Furlan <guionardo@gmail.com>
 
 COMMANDS:
-   go       Go to folder
-   setup    Setup configuration for folder
-   list     List folders
-   update   Update folders
-   install  Install go-dev
+   go       Execute go command
+   setup    Setup go-dev
+   sync     Sync go-dev
+   init     Initialize go-dev for bash
    help, h  Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   --config value  Configuration file (default: "/home/guionardo/.dev_folders_go.json") [$GO_DEV_CONFIG]
-   --output value  Output file for command execution (default: "/home/guionardo/.dev_folders_go.out") [$GO_DEV_OUTPUT]
-   --help, -h      show help (default: false)
-   --version, -v   print the version (default: false)
-
+   --config-file value  (default: "/home/guionardo/.config/go-dev/go-dev.yaml") [$GO_DEV_CONFIG]
+   --debug              (default: false) [$GO_DEV_DEBUG]
+   --output value       (default: "/home/guionardo/.config/go-dev/go-dev.sh")
+   --help, -h           show help (default: false)
+   --version, -v        print the version (default: false)
 ```
 
-## Links
-
-* https://github.com/marketplace/actions/go-release-binaries
-* https://pkg.go.dev/github.com/urfave/cli/v2#App
-
-## Dependency
-
-go install github.com/goreleaser/goreleaser@latest
