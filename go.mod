@@ -11,8 +11,11 @@ require (
 )
 
 require (
+	github.com/codeclysm/extract/v3 v3.0.2
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
+	github.com/h2non/filetype v1.1.3 // indirect
+	github.com/juju/errors v1.0.0 // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
 	github.com/rivo/uniseg v0.4.2 // indirect

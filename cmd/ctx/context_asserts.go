@@ -3,6 +3,7 @@ package ctx
 import (
 	"fmt"
 
+	"github.com/guionardo/go-dev/cmd/update"
 	"github.com/guionardo/go-dev/pkg/config"
 	"github.com/guionardo/go-dev/pkg/logger"
 	"github.com/urfave/cli/v2"
@@ -43,6 +44,19 @@ func AssertAutoSync(c *cli.Context) error {
 		}
 		logger.Info("AutoSync completed")
 		c2.Config.AutoSync.Run()
+		return c2.Config.Save(c2.ConfigFile)
+	}
+	return nil
+}
+
+func AssertAutoUpdate(c *cli.Context) error {
+	c2 := GetContext(c)
+	if c2.Config.AutoUpdate.ShouldRun() {
+		if err := update.RunGitUpdate(); err != nil {
+			c2.LastErr = err
+			return err
+		}
+		c2.Config.AutoUpdate.Run()
 		return c2.Config.Save(c2.ConfigFile)
 	}
 	return nil

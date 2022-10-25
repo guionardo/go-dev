@@ -21,6 +21,8 @@ func GetSetupCommand() *cli.Command {
 			GetSetupUpdateFolderCommand(),
 			GetSetupAutoSyncCommand(),
 			GetSetupShellCommand(),
+			GetSetupAutoUpdateCommand(),
+			GetSetupDoGitUpdateCommand(),
 		},
 	}
 }
@@ -99,6 +101,28 @@ func GetSetupAutoSyncCommand() *cli.Command {
 	}
 }
 
+func GetSetupAutoUpdateCommand() *cli.Command {
+	return &cli.Command{
+		Name:   "auto-update",
+		Usage:  "Enable or disable auto-update",
+		Action: actions.SetupAutoUpdateAction,
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:  consts.FlagDisable,
+				Usage: "Disable auto-update",
+				Value: true,
+			},
+			&cli.IntFlag{
+				Name:    consts.FlagInterval,
+				Aliases: []string{"i"},
+				Usage:   "Interval (minutes) to run auto-autoupdate",
+				Value:   360,
+			},
+		},
+	}
+}
+
+
 func GetSetupShellCommand() *cli.Command {
 	return &cli.Command{
 		Name:  "shell",
@@ -112,5 +136,13 @@ func GetSetupShellCommand() *cli.Command {
 			},
 		},
 		Action: actions.SetupShellAction,
+	}
+}
+
+func GetSetupDoGitUpdateCommand() *cli.Command {
+	return &cli.Command{
+		Name:   "do-git-update",
+		Usage:  "Update go-dev",
+		Action: actions.SetupDoGitUpdateAction,
 	}
 }

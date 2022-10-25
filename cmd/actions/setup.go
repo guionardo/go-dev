@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/guionardo/go-dev/cmd/ctx"
+	"github.com/guionardo/go-dev/cmd/update"
 	"github.com/guionardo/go-dev/pkg/arrays"
 	"github.com/guionardo/go-dev/pkg/consts"
 	"github.com/guionardo/go-dev/pkg/folders"
@@ -101,6 +102,22 @@ func SetupAutoSyncAction(c *cli.Context) error {
 	return c2.Config.Save(c2.ConfigFile)
 }
 
+func SetupAutoUpdateAction(c *cli.Context) error {
+	c2 := ctx.GetContext(c)
+	interval := c.Int(consts.FlagInterval)
+	if c.Bool(consts.FlagDisable) {
+		interval = 0
+	}
+	if interval == 0 {
+		logger.Info("AutoUpdate disabled")
+	} else {
+		logger.Info("AutoUpdate enabled with interval %s", time.Duration(interval*int(time.Minute)))
+	}
+	c2.Config.AutoUpdate.Interval = time.Duration(interval * int(time.Minute))
+
+	return c2.Config.Save(c2.ConfigFile)
+}
+
 func SetupShellAction(c *cli.Context) error {
 	//	source <(./go-dev init)
 	executableName, err := os.Executable()
@@ -153,4 +170,15 @@ func SetupShellAction(c *cli.Context) error {
 		logger.Error(fmt.Sprintf("Failed to save %s - %s - %v", shellInfo.RCFile, operation, err))
 	}
 	return err
+}
+
+func SetupDoGitUpdateAction(c *cli.Context) error {
+	c2 := ctx.GetContext(c)
+
+	if err := update.RunGitUpdate(); err != nil {
+		c2.LastErr = err
+		return err
+	}
+	c2.Config.AutoUpdate.Run()
+	return c2.Config.Save(c2.ConfigFile)
 }

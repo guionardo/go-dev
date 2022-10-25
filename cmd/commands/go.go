@@ -11,7 +11,7 @@ func GetGoCommand() *cli.Command {
 	return &cli.Command{
 		Name:   "go",
 		Usage:  "Execute go command",
-		Before: ctx.ChainedActions(ctx.AssertConfigExists, ctx.AssertAutoSync),
+		Before: ctx.ChainedActions(ctx.AssertAutoUpdate, ctx.AssertConfigExists, ctx.AssertAutoSync),
 		Action: actions.GoAction,
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
