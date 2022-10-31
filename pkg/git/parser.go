@@ -1,21 +1,38 @@
 package git
 
 import (
+	"fmt"
 	"regexp"
 )
 
-/*
-ssh:	git@ssh.dev.azure.com:v3/AMBEV-SA/AMBEV-BIFROST/ms-beesforce-credit-transformation
+const (
+	AzureFormat = "https://%s/_git/%s"
+	GitFormat   = "https://%s/%s"
+)
 
-web: 	https://dev.azure.com/AMBEV-SA/AMBEV-BIFROST/_git/beesforce-metric-api
-*/
-func isAzureSSH(url string) (success bool, domain string, repo string) {
+type GitURL struct {
+	Success bool
+	Domain  string
+	Repo    string
+	Format  string
+}
+
+func (g GitURL) GetURL() string {
+	return fmt.Sprintf(g.Format, g.Domain, g.Repo)
+}
+
+func isAzureSSH(url string) GitURL {
 	azureSSHRE := regexp.MustCompile(`(?m)git@ssh.dev.azure.com:(v[0-9]{1,2})/(.*)/(.*)`)
 	matches := azureSSHRE.FindStringSubmatch(url)
 	if len(matches) > 0 {
-		success, domain, repo = true, "dev.azure.com", matches[2]+"/"+matches[3]
+		return GitURL{
+			Success: true,
+			Domain:  "dev.azure.com" + "/" + matches[2],
+			Repo:    matches[3],
+			Format:  AzureFormat,
+		}
 	}
-	return
+	return GitURL{}
 }
 
 /*
@@ -23,33 +40,31 @@ ssh: 	git@github.com:guionardo/go-dev.git
 https: 	https://github.com/guionardo/go-dev.git
 web: 	https://github.com/guionardo/go-dev
 */
-func isGitSSH(url string) (success bool, domain string, repo string) {
+func isGitSSH(url string) GitURL {
 	gitSSHRE := regexp.MustCompile(`(?m)git@(.*):(.*)/(.*)\.git`)
 	matches := gitSSHRE.FindStringSubmatch(url)
 	if len(matches) > 0 {
-		success, domain, repo = true, matches[1], matches[2]+"/"+matches[3]
+		return GitURL{
+			Success: true,
+			Domain:  matches[1],
+			Repo:    matches[2] + "/" + matches[3],
+			Format:  GitFormat,
+		}
+
 	}
-	return
+	return GitURL{}
 }
 
-func IsGitURL(url string) (success bool, domain string, repo string) {
-	if success, domain, repo = isAzureSSH(url); success {
-		return
-	}
-	if success, domain, repo = isGitSSH(url); success {
-		return
-	}
-	return
-}
-
-/*
-https:	https://AMBEV-SA@dev.azure.com/AMBEV-SA/AMBEV-BIFROST/_git/beesforce-metric-api
-*/
-func isAzureHTTP(url string) (success bool, domain string, repo string) {
+func isAzureHTTP(url string) (gu GitURL) {
 	azureHttpRE := regexp.MustCompile(`(?m)https://(.*)@dev.azure.com/(.*)/_git/(.*)`)
 	matches := azureHttpRE.FindStringSubmatch(url)
 	if len(matches) > 0 {
-		success, domain, repo = true, "dev.azure.com", matches[2]+"/"+matches[3]
+		gu = GitURL{
+			Success: true,
+			Domain:  "dev.azure.com" + "/" + matches[2],
+			Repo:    matches[3],
+			Format:  AzureFormat,
+		}
 	}
 	return
 }
@@ -57,25 +72,29 @@ func isAzureHTTP(url string) (success bool, domain string, repo string) {
 /*
 https://gitlab.com/wee-ops/wee-api.git
 */
-func isGitHTTP(url string) (success bool, domain string, repo string) {
+func isGitHTTP(url string) GitURL {
 	gitHttpRE := regexp.MustCompile(`(?m)https://(.*)/(.*)/(.*)\.git`)
 	matches := gitHttpRE.FindStringSubmatch(url)
 	if len(matches) > 0 {
-		success, domain, repo = true, matches[1], matches[2]+"/"+matches[3]
+		return GitURL{
+			Success: true,
+			Domain:  matches[1],
+			Repo:    matches[2] + "/" + matches[3],
+			Format:  GitFormat,
+		}
 	}
-	return
-}
-
-func IsHttpURL(url string) (success bool, domain string, repo string) {
-	if success, domain, repo = isAzureHTTP(url); success {
-		return
-	}
-	if success, domain, repo = isGitHTTP(url); success {
-		return
-	}
-	return
+	return GitURL{}
 }
 
 //https://gitlab.com/wee-ops/wee-api
 //git@gitlab.com:wee-ops/wee-api.git
 //https://gitlab.com/wee-ops/wee-api.git
+
+func ParseGitURL(url string) GitURL {
+	for _, parseFunc := range []func(string) GitURL{isAzureHTTP, isAzureSSH, isGitHTTP, isGitSSH} {
+		if gitURL := parseFunc(url); gitURL.Success {
+			return gitURL
+		}
+	}
+	return GitURL{}
+}

@@ -8,11 +8,11 @@ import (
 	"strings"
 
 	"github.com/guionardo/go-dev/pkg/git"
+	"github.com/guionardo/go-dev/pkg/logger"
 	"github.com/urfave/cli/v2"
 )
 
-func UrlAction(c *cli.Context) error {
-	// c2 := ctx.GetContext(c)
+func UrlAction(c *cli.Context) error {	
 	justPrint := c.Bool("just-print")
 
 	cwd, err := os.Getwd()
@@ -39,6 +39,7 @@ func UrlAction(c *cli.Context) error {
 	if justPrint {
 		_, err = fmt.Println(url)
 	} else {
+		logger.Info("Opening %s", url)
 		out, err = exec.Command("xdg-open", url).Output()
 		if err != nil {
 			fmt.Printf("Error: %s", out)
@@ -48,12 +49,9 @@ func UrlAction(c *cli.Context) error {
 }
 
 func getHttpUrl(url string) (string, error) {
-	success, domain, repo := git.IsGitURL(url)
-	if !success {
-		success, domain, repo = git.IsHttpURL(url)
-	}
-	if !success {
+	gu := git.ParseGitURL(url)
+	if !gu.Success {
 		return "", fmt.Errorf("Invalid git url: %s", url)
 	}
-	return fmt.Sprintf("https://%s/%s", domain, repo), nil
+	return gu.GetURL(), nil
 }
