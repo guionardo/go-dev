@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"path"
 
@@ -44,4 +45,15 @@ func (c *Config) Save(filename string) error {
 	}
 	logger.Debug("Saving config to %s - error=%v", filename, err)
 	return err
+}
+
+func (c *Config) Find(folderName string) (coll *folders.FolderCollection, folder *folders.Folder, err error) {
+	for _, collection := range c.DevFolders {
+		if folder, err = collection.Get(folderName); folder != nil {
+			coll = collection
+			return
+		}
+	}
+	err = fmt.Errorf("Folder %s not found", folderName)
+	return
 }

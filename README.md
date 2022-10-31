@@ -48,10 +48,10 @@ USAGE:
    go-dev [global options] command [command options] [arguments...]
 
 VERSION:
-   1.3.0
+   1.5.0
 
 DESCRIPTION:
-   Builder Info: guionardo@ambevtech-guionardo - 2022-10-24 19:09:36
+   Builder Info: guionardo@ambevtech-guionardo - 2022-10-25 00:15:03
 
 AUTHOR:
    Guionardo Furlan <guionardo@gmail.com>
@@ -61,6 +61,7 @@ COMMANDS:
    setup    Setup go-dev
    sync     Sync go-dev
    init     Initialize go-dev for bash
+   url, u   Open URL from repository into current browser
    help, h  Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
@@ -71,3 +72,8 @@ GLOBAL OPTIONS:
    --version, -v        print the version (default: false)
 ```
 
+## RELEASE INSTRUCTIONS
+
+* Run all the tests
+* Commit/push all updates to repository
+* Run 'make release-feature'

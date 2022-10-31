@@ -102,6 +102,17 @@
         "--ignore-children",
         "/home/guionardo/dev/b2b/b2b-file-receiver-promax"
       ]
+    },
+    {
+      "name": "Url",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}",
+      "args": [
+        "--debug",
+        "url"        
+      ]
     }
   ]
 }

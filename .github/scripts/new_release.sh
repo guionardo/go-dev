@@ -107,6 +107,12 @@ function build {
 }
 
 function create_release {
+    echo "====================="
+    echo "Adding metadata"
+    git add pkg/consts/metadata.json
+    git commit -m "Release ${RELEASE}"
+    git tag -a "${RELEASE}" -m "Release ${RELEASE}"
+    git push 
     gh release create $RELEASE
 }
 

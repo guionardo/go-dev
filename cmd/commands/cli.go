@@ -47,6 +47,7 @@ func SetupCli() *cli.App {
 			GetSetupCommand(),
 			GetSyncCommand(),
 			GetInitCommand(),
+			GetUrlCommand(),
 		},
 	}
 	return app

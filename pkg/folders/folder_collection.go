@@ -124,3 +124,5 @@ func (fc *FolderCollection) Find(words []string) (folders []*Folder) {
 	}
 	return
 }
+
+
