@@ -19,6 +19,7 @@ jobs:
     needs: ["if_merged"]
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - run: |
           echo Continue the job
           export LATESTLOG=$(git log -1 --pretty=%B)
