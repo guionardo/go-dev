@@ -38,8 +38,7 @@ func GoAction(c *cli.Context) error {
 		i++
 	}
 	var folder *folders.Folder
-	// devFolder := ""
-	// ok := false
+
 	maxDevFolder := 0
 	for _, df := range devFoldersFound {
 		if len(df) > maxDevFolder {
@@ -48,14 +47,13 @@ func GoAction(c *cli.Context) error {
 	}
 
 	sort.Strings(match)
-	choosed_folder := utils.FolderChoice(match, maxDevFolder)
+	choosed_folder := utils.FolderChoice(match, maxDevFolder, c.String(consts.FlagChoiceType))
 	if len(choosed_folder) == 0 {
 		return errors.New("no folder choose")
 	}
-	for _, df := range devFoldersFound {
-		if folder, _ = c2.Config.DevFolders[df].Folders[choosed_folder]; folder != nil {
-			break
-		}
+	_, folder, err := c2.Config.Find(choosed_folder)
+	if err != nil {
+		return err
 	}
 
 	openFolder := c.Bool(consts.FlagOpen)

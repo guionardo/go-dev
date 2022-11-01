@@ -7,6 +7,9 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	gochoice "github.com/TwiN/go-choice"
+	"github.com/guionardo/go-dev/pkg/logger"
 )
 
 func PathExists(path string) bool {
@@ -25,7 +28,7 @@ func FileExists(fileName string) bool {
 	info, err := os.Stat(fileName)
 	return err == nil && !info.IsDir()
 }
-func FolderChoice(pastas []string, offset int) string {
+func FolderChoice(pastas []string, offset int, choiceType string) string {
 	switch len(pastas) {
 	case 0:
 		log.Println("Folder not found")
@@ -33,7 +36,53 @@ func FolderChoice(pastas []string, offset int) string {
 	case 1:
 		return pastas[0]
 	}
+	switch choiceType {
+	case "browse":
+		return browseChoice(pastas, offset)
+	case "index":
+		return indexChoice(pastas, offset)
+	}
+	logger.Error("Invalid choice type: %s - expected 'browse' or 'index'", choiceType)
+	return ""
+}
 
+func Filter(vs []string, f func(string) bool) []string {
+	filtered := make([]string, 0)
+	for _, v := range vs {
+		if f(v) {
+			filtered = append(filtered, v)
+		}
+	}
+	return filtered
+}
+
+func ReplaceAll(text string, replaces map[string]string) string {
+	for _, key := range replaces {
+		text = strings.ReplaceAll(text, key, replaces[key])
+	}
+	return text
+}
+
+func browseChoice(pastas []string, offset int) string {
+	choices := make([]string, len(pastas))
+	for i, s := range pastas {
+		choices[i] = s[offset:]
+	}
+	_, index, err := gochoice.Pick(
+		"Pick your folder\n",
+		choices,
+		gochoice.OptionBackgroundColor(gochoice.Black),
+		gochoice.OptionTextColor(gochoice.White),
+		gochoice.OptionSelectedTextColor(gochoice.Red),
+		gochoice.OptionSelectedTextBold(),
+	)
+	if err != nil || index < 0 {
+		return ""
+	}
+	return pastas[index]
+}
+
+func indexChoice(pastas []string, offset int) string {
 	var choice = -1
 	for choice < 0 {
 		for i, s := range pastas {
@@ -57,21 +106,4 @@ func FolderChoice(pastas []string, offset int) string {
 	}
 
 	return ""
-}
-
-func Filter(vs []string, f func(string) bool) []string {
-	filtered := make([]string, 0)
-	for _, v := range vs {
-		if f(v) {
-			filtered = append(filtered, v)
-		}
-	}
-	return filtered
-}
-
-func ReplaceAll(text string, replaces map[string]string) string {
-	for _, key := range replaces {
-		text = strings.ReplaceAll(text, key, replaces[key])
-	}
-	return text
 }

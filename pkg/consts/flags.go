@@ -12,4 +12,5 @@ const (
 	FlagDisable        = "disable"
 	FlagInterval       = "interval"
 	FlagNoFolders      = "no-folders"
+	FlagChoiceType     = "choice-type"
 )

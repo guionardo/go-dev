@@ -27,6 +27,11 @@ func GetGoCommand() *cli.Command {
 				Usage:    "File to save command output",
 				Required: false,
 			},
+			&cli.StringFlag{
+				Name:  consts.FlagChoiceType,
+				Usage: "Type of choice to be used when multiple folders are found [browse, index]",
+				Value: "browse",
+			},
 		},
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"runtime"
 	"strings"
 
 	"github.com/guionardo/go-dev/pkg/git"
@@ -12,7 +13,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func UrlAction(c *cli.Context) error {	
+func UrlAction(c *cli.Context) error {
 	justPrint := c.Bool("just-print")
 
 	cwd, err := os.Getwd()
@@ -28,7 +29,7 @@ func UrlAction(c *cli.Context) error {
 	// Run git config --get remote.origin.url
 	out, err := exec.Command("git", "config", "--get", "remote.origin.url").Output()
 	if err != nil {
-		return err
+		return fmt.Errorf("Current repository has no remote origin - %v", err)
 	}
 	output := strings.ReplaceAll(strings.SplitN(string(out), "\n", 1)[0], "\n", "")
 	url, err := getHttpUrl(output)
@@ -40,10 +41,8 @@ func UrlAction(c *cli.Context) error {
 		_, err = fmt.Println(url)
 	} else {
 		logger.Info("Opening %s", url)
-		out, err = exec.Command("xdg-open", url).Output()
-		if err != nil {
-			fmt.Printf("Error: %s", out)
-		}
+		err = openInBrowser(url)
+
 	}
 	return err
 }
@@ -54,4 +53,19 @@ func getHttpUrl(url string) (string, error) {
 		return "", fmt.Errorf("Invalid git url: %s", url)
 	}
 	return gu.GetURL(), nil
+}
+
+func openInBrowser(url string) (err error) {
+	switch runtime.GOOS {
+	case "linux":
+		err = exec.Command("xdg-open", url).Start()
+	case "windows":
+		err = exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
+	case "darwin":
+		err = exec.Command("open", url).Start()
+	default:
+		err = fmt.Errorf("unsupported platform")
+	}
+
+	return
 }

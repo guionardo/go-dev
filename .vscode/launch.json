@@ -61,7 +61,7 @@
       "request": "launch",
       "mode": "auto",
       "program": "${workspaceFolder}",
-      "args": ["--debug", "go", "estoque"]
+      "args": ["--debug", "go", "escoteirando"]
     },
     {
       "name": "Init",

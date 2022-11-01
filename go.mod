@@ -7,8 +7,16 @@ require (
 	github.com/guionardo/go-gstools v0.7.13
 	github.com/mattn/go-isatty v0.0.16
 	github.com/schollz/progressbar/v3 v3.11.0
-	github.com/urfave/cli/v2 v2.20.3
+	github.com/urfave/cli/v2 v2.23.0
 	gopkg.in/yaml.v2 v2.4.0
+)
+
+require (
+	github.com/TwiN/go-choice v1.2.0
+	github.com/gdamore/encoding v1.0.0 // indirect
+	github.com/gdamore/tcell/v2 v2.5.3 // indirect
+	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
+	golang.org/x/text v0.4.0 // indirect
 )
 
 require (

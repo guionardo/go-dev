@@ -48,7 +48,7 @@ USAGE:
    go-dev [global options] command [command options] [arguments...]
 
 VERSION:
-   1.5.0
+   1.7.0
 
 DESCRIPTION:
    Builder Info: guionardo@ambevtech-guionardo - 2022-10-25 00:15:03
