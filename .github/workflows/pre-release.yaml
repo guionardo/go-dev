@@ -1,0 +1,36 @@
+name: Pre-release
+
+on:
+  pull_request:
+    types: [closed]
+    branches: ["releases/**"]
+
+
+jobs:
+  if_merged:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+    - run: |
+        echo The PR was merged
+  # releases-matrix:
+  #   name: Release Go Binary
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       # build and publish in parallel: linux/386, linux/amd64, linux/arm64, windows/386, windows/amd64, darwin/amd64, darwin/arm64
+  #       goos: [linux]
+  #       goarch: [amd64]
+  #       exclude:
+  #         - goarch: arm64
+  #           goos: windows
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: wangyoucao577/go-release-action@v1.32
+  #       with:
+  #         github_token: ${{ secrets.GITHUB_TOKEN }}
+  #         goos: ${{ matrix.goos }}
+  #         goarch: ${{ matrix.goarch }}
+  #         goversion: "https://dl.google.com/go/go1.19.2.linux-amd64.tar.gz"
+  #         extra_files: LICENSE README.md
+  #         build_flags: -v
