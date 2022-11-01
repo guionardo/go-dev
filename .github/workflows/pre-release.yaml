@@ -2,8 +2,7 @@ name: Pre-release
 
 on:
   pull_request:
-    types: [closed]
-    branches: ["release/**"]
+    types: [closed]    
 
 
 jobs:
@@ -14,6 +13,7 @@ jobs:
     steps:
     - run: |
         echo The PR was merged
+        echo "REF: ${{ github.ref }}"
 
   build:
     name: "Build"
