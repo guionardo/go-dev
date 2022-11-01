@@ -3,7 +3,7 @@ name: Pre-release
 on:
   pull_request:
     types: [closed]
-    branches: ["releases/**"]
+    branches: ["release/**"]
 
 
 jobs:
@@ -33,7 +33,7 @@ jobs:
   #       run: |
   #         echo "Tag is a match"
 
-  
+
   # releases-matrix:
   #   name: Release Go Binary
   #   runs-on: ubuntu-latest
