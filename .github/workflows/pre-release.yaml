@@ -40,9 +40,12 @@ jobs:
     name: "Validate"
     needs: ["merged_release_version","get_latest_release"]
     runs-on: ubuntu-latest
+    outputs:
+      is_valid: ${{ steps.validate.outputs.is_valid }}
     steps:
       - uses: actions/checkout@v3
-      - run: |
+      - id: validate
+        run: |
           VERSION=${{needs.merged_release_version.outputs.version}}
           echo "::notice::Latest release ${VERSION}"          
           CURRENT_VERSION=${{needs.get_latest_release.outputs.version}}
@@ -86,7 +89,25 @@ jobs:
             echo "::warning::Build version is smaller than current"
             exit 1
           fi
+
+          echo "is_valid=1" >> $GITHUB_OUTPUT
             
+  close_pr:
+    needs: [validate]
+    if: always()
+    name: Close pull request
+    runs-on: ubuntu-latest
+    steps:
+    - run: |
+        if [ "${{needs.validate.outputs.is_valid}}" == "1" ]; then
+          exit
+        fi
+    - uses: superbrothers/close-pull-request@v3
+      with:
+        comment: "Invalid version"
+
+
+
 
 
 
