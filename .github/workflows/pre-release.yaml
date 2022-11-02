@@ -1,7 +1,7 @@
 name: Pre-release
 
 on:
-  pull_request_target:
+  pull_request:
     types: [opened]
 
 jobs:
@@ -91,6 +91,20 @@ jobs:
           fi
 
           echo "is_valid=1" >> $GITHUB_OUTPUT
+
+  update_metadata:
+    needs: [validate,merged_release_version]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: "Update metadata.json"
+      run: |
+        VERSION=${{needs.merged_release_version.outputs.version}}
+        BUILD_TIME=$(date +"%Y-%m-%dT%H:%M:%S%:z")
+        BUILD_RUNNER="github"
+        tmp=$(jq --arg a "$BUILD_TIME"  --arg b "$RELEASE" --arg c "$BUILD_RUNNER" '.build_time = $a | .version = $b | .build_runner = $c' ./pkg/consts/metadata.json)
+        echo $tmp
+    
             
   close_pr:
     needs: [validate]
@@ -102,6 +116,7 @@ jobs:
         if [ "${{needs.validate.outputs.is_valid}}" == "1" ]; then
           exit
         fi
+        echo "::warning::This pull request should not be merged!"
     - uses: superbrothers/close-pull-request@v3
       with:
         comment: "Invalid version"
