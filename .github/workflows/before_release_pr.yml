@@ -1,0 +1,14 @@
+name: Before release pull request
+
+on:
+  pull_request:
+    types: [opened]
+    branches: [release/v*.*.*]
+
+jobs:
+  validate:
+    name: Validation
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "OK"
