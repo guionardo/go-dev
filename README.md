@@ -14,13 +14,13 @@ Just go in terminal and "dev my_project", and the tool will find the project int
 
 ```bash
 go install github.com/guionardo/go-dev
-``` 
+```
 
 ### Download from releases
 
 Only for linux-amd64
 
-Go to [release page](https://github.com/guionardo/go-dev/releases) and download the latest go-dev-v*-linux-amd64.tar.gx
+Go to [release page](https://github.com/guionardo/go-dev/releases) and download the latest go-dev-v\*-linux-amd64.tar.gx
 
 Extract the go-dev file into a folder. Assure that this folder is in PATH variable.
 
@@ -31,11 +31,9 @@ Extract the go-dev file into a folder. Assure that this folder is in PATH variab
 go-dev version 0.0.0
 ```
 
-
-
 ## Environment
 
-* GO_DEV_CONFIG = Configuration file (default = ~/.config/go-dev/go-dev.yaml)
+- GO_DEV_CONFIG = Configuration file (default = ~/.config/go-dev/go-dev.yaml)
 
 ## Commands
 
@@ -74,6 +72,6 @@ GLOBAL OPTIONS:
 
 ## RELEASE INSTRUCTIONS
 
-* Run all the tests
-* Commit/push all updates to repository
-* Run 'make release-feature'
+- Create a branch in the release/v*.*.\* format
+- Add your changes and assure tests are OK
+- Push and do a pull request to merge into develop
