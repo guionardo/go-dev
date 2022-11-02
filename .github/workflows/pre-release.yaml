@@ -14,7 +14,7 @@ jobs:
     steps:
     - id: check_version
       run: |
-          if [[ ! $GITHUB_HEAD_REF =~ release\/(v[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}) ]]; then
+          if [[ ! $GITHUB_HEAD_REF =~ release\/v([0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}) ]]; then
             exit 1          
           fi
           v=${BASH_REMATCH[1]}
@@ -36,17 +36,61 @@ jobs:
 
 
 
-  build:
-    name: "Build"
+  validate:
+    name: "Validate"
     needs: ["merged_release_version","get_latest_release"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - run: |
           VERSION=${{needs.merged_release_version.outputs.version}}
-          echo $VERSION
+          echo "::notice::Latest release ${VERSION}"          
           CURRENT_VERSION=${{needs.get_latest_release.outputs.version}}
-          echo $CURRENT_VERSION
+          echo "::notice::Current release ${CURRENT_VERSION}"
+
+          if [ "$VERSION" == "$CURRENT_VERSION" ]; then
+            echo "::warning::No change"
+            exit 1
+          fi
+
+          regex="([0-9]+).([0-9]+).([0-9]+)"
+          if [[ ${VERSION} =~ $regex ]]; then
+              l_major="${BASH_REMATCH[1]}"
+              l_minor="${BASH_REMATCH[2]}"
+              l_build="${BASH_REMATCH[3]}"
+          else
+            echo "::error::Invalid latest release ${VERSION}"
+            exit 1
+          fi
+          
+          if [[ ${CURRENT_VERSION} =~ $regex ]]; then
+              c_major="${BASH_REMATCH[1]}"
+              c_minor="${BASH_REMATCH[2]}"
+              c_build="${BASH_REMATCH[3]}"
+          else
+            echo "::error::Invalid current release ${CURRENT_VERSION}"
+            exit 1
+          fi
+
+          if [ "$l_major" -lt "$c_major" ]; then
+            echo "::warning::Major version is smaller than current"
+            exit 1
+          fi
+
+          if [ "$l_minor" -lt "$c_minor" ]; then
+            echo "::warning::Minor version is smaller than current"
+            exit 1
+          fi
+
+          if [ "$l_build" -lt "$c_build" ]; then
+            echo "::warning::Build version is smaller than current"
+            exit 1
+          fi
+            
+
+
+
+
 
 
  
