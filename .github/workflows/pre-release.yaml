@@ -25,6 +25,7 @@ jobs:
           export LATESTLOG=$(git log -1 --pretty=%B)
           export SOURCEBRANCH=$(echo $LATESTLOG | awk -F '\\\\n' '{print $1}' |  awk -F '/' '{print $2}' | awk '{print $1}')
           echo "Source branch $SOURCEBRANCH"
+          echo "HEAD $GITHUB_HEAD_REF"
   #   -
   #     id: check-tag
   #   run: |
