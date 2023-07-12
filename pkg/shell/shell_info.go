@@ -19,12 +19,12 @@ func NewShellInfo() (si *ShellInfo, err error) {
 	// Detect shell
 	shell := os.Getenv("SHELL")
 	if len(shell) == 0 {
-		err = fmt.Errorf("No SHELL environment detected")
+		err = fmt.Errorf("no SHELL environment detected")
 		return
 	}
 	homePath, err := os.UserHomeDir()
 	if err != nil {
-		err = fmt.Errorf("Error getting user home dir - %v", err)
+		err = fmt.Errorf("error getting user home dir - %v", err)
 		return
 	}
 

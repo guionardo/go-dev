@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestParseGitURL(t *testing.T) {
+func TestParse(t *testing.T) {
 
 	tests := []struct {
 		name    string
@@ -75,15 +75,19 @@ func TestParseGitURL(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := ParseGitURL(tt.url)
+			got, err := Parse(tt.url)
+			if err == nil && !tt.want.Success {
+				t.Errorf("Parse() success expected")
+				return
+			}
 			if got.Success != tt.want.Success {
-				t.Errorf("ParseGitURL() success expected")
+				t.Errorf("Parse() success expected")
 			}
 			if got.Domain != tt.want.Domain || got.Repo != tt.want.Repo {
-				t.Errorf("ParseGitURL() = %v, want %v", got, tt.want)
+				t.Errorf("Parse() = %v, want %v", got, tt.want)
 			}
 			if got.GetURL() != tt.wantUrl {
-				t.Errorf("ParseGitURL() = %s, want %v", got.GetURL(), tt.wantUrl)
+				t.Errorf("Parse() = %s, want %v", got.GetURL(), tt.wantUrl)
 			}
 		})
 	}

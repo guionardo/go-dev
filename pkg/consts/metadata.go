@@ -28,6 +28,6 @@ var (
 
 func init() {
 	if err := json.Unmarshal(MetadataJson, &Metadata); err != nil {
-		panic(fmt.Errorf("Error reading metadata.json: %v", err))
+		panic(fmt.Errorf("error reading metadata.json: %v", err))
 	}
 }

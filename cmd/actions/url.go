@@ -23,13 +23,13 @@ func UrlAction(c *cli.Context) error {
 	// Check folder .git
 	gitFolder := path.Join(cwd, ".git")
 	if _, err := os.Stat(gitFolder); os.IsNotExist(err) {
-		return fmt.Errorf("Folder %s is not a git repository", cwd)
+		return fmt.Errorf("folder %s is not a git repository", cwd)
 	}
 
 	// Run git config --get remote.origin.url
 	out, err := exec.Command("git", "config", "--get", "remote.origin.url").Output()
 	if err != nil {
-		return fmt.Errorf("Current repository has no remote origin - %v", err)
+		return fmt.Errorf("current repository has no remote origin - %v", err)
 	}
 	output := strings.ReplaceAll(strings.SplitN(string(out), "\n", 1)[0], "\n", "")
 	url, err := getHttpUrl(output)
@@ -48,9 +48,9 @@ func UrlAction(c *cli.Context) error {
 }
 
 func getHttpUrl(url string) (string, error) {
-	gu := git.ParseGitURL(url)
-	if !gu.Success {
-		return "", fmt.Errorf("Invalid git url: %s", url)
+	gu, err := git.Parse(url)
+	if !gu.Success || err != nil {
+		return "", fmt.Errorf("invalid git url: %s", url)
 	}
 	return gu.GetURL(), nil
 }
@@ -58,7 +58,11 @@ func getHttpUrl(url string) (string, error) {
 func openInBrowser(url string) (err error) {
 	switch runtime.GOOS {
 	case "linux":
-		err = exec.Command("xdg-open", url).Start()
+		command := "xdg-open"
+		if len(os.Getenv("WSL_DISTRO_NAME")) > 0 {
+			command = "sensible-browser"
+		}
+		err = exec.Command(command, url).Start()
 	case "windows":
 		err = exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
 	case "darwin":

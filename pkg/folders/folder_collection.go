@@ -85,7 +85,7 @@ func (fc *FolderCollection) Get(path string) (*Folder, error) {
 			return f, nil
 		}
 	}
-	return nil, errors.New("Folder not found")
+	return nil, errors.New("folder not found")
 }
 
 func (fc *FolderCollection) GetParent(folder *Folder) (*Folder, error) {
@@ -102,7 +102,7 @@ func (fc *FolderCollection) GetNearestParent(folder string, keepFinding bool) (*
 	if keepFinding {
 		return fc.GetNearestParent(parent, keepFinding)
 	}
-	return nil, errors.New("Folder not found")
+	return nil, errors.New("folder not found")
 }
 
 func (fc *FolderCollection) GetChildren(folder *Folder) []*Folder {
@@ -124,5 +124,3 @@ func (fc *FolderCollection) Find(words []string) (folders []*Folder) {
 	}
 	return
 }
-
-

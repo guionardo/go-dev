@@ -26,6 +26,7 @@ func SetupCli() *cli.App {
 				Email: consts.AuthorEmail,
 			},
 		},
+		EnableBashCompletion: true,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    consts.FlagConfigFile,
@@ -48,6 +49,7 @@ func SetupCli() *cli.App {
 			GetSyncCommand(),
 			GetInitCommand(),
 			GetUrlCommand(),
+			GetConsoleCommand(),
 		},
 	}
 	return app

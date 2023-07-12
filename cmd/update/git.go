@@ -61,20 +61,20 @@ func RunGitUpdate() error {
 	}
 	logger.Debug("Extracted files: %v", files)
 
-	binary_file := ""
+	binaryFile := ""
 	for _, file := range files {
 		if strings.HasSuffix(file, consts.AppName) {
 			logger.Debug("Found executable: %s", file)
-			binary_file = file
+			binaryFile = file
 			break
 		}
 	}
-	if binary_file == "" {
+	if binaryFile == "" {
 		logger.Error("Error finding executable file")
 		return nil
 	}
 	var downloadedVersion version.Version
-	if downloadedVersion, err = testVersion(binary_file); err != nil {
+	if downloadedVersion, err = testVersion(binaryFile); err != nil {
 		logger.Error("Error testing version: %s", err)
 		return nil
 	}
@@ -83,7 +83,6 @@ func RunGitUpdate() error {
 		return nil
 	}
 
-	
 	return nil
 }
 
@@ -119,10 +118,10 @@ func getGithubVersion() (v string, releaseUrl string, err error) {
 	client := github.NewClient(http.DefaultClient)
 	release, response, err := client.Repositories.GetLatestRelease(context.Background(), "guionardo", consts.AppName)
 	if err != nil {
-		return "", "", fmt.Errorf("Failed to get latest release: %v", err)
+		return "", "", fmt.Errorf("failed to get latest release: %v", err)
 	}
 	if response.StatusCode != http.StatusOK {
-		return "", "", fmt.Errorf("Failed to get latest release: %v", response.StatusCode)
+		return "", "", fmt.Errorf("failed to get latest release: %v", response.StatusCode)
 	}
 	suffix := runtime.GOOS + "-" + runtime.GOARCH // "-linux-amd64"
 	for _, asset := range release.Assets {
@@ -159,7 +158,7 @@ func dowloadFile(url string) (filename string, err error) {
 	}
 	if written != resp.ContentLength {
 		os.Remove(tmpfile.Name())
-		return "", fmt.Errorf("Failed to download file: size written differs from expected")
+		return "", fmt.Errorf("failed to download file: size written differs from expected")
 	}
 	return filename, nil
 }

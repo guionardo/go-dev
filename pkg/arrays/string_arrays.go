@@ -74,6 +74,6 @@ func (a *StringArray) FindByLine(finder func(line string) bool) (lineNumber int,
 		}
 	}
 
-	err = errors.New("Line not found")
+	err = errors.New("line not found")
 	return
 }

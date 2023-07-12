@@ -31,9 +31,9 @@ func GetSetupCommand() *cli.Command {
 func GetSetupAddFolderCommand() *cli.Command {
 	currentFolder, _ := os.Getwd()
 	return &cli.Command{
-		Name:      "add-folder",
-		Usage:     "Add a folder to go-dev",
-		Action:    actions.SetupAddFolderAction,
+		Name:      "add-root",
+		Usage:     "Add a root folder to go-dev",
+		Action:    actions.SetupAddRootFolderAction,
 		ArgsUsage: "[folder default=" + currentFolder + "]",
 		Flags: []cli.Flag{
 			&cli.IntFlag{
@@ -62,7 +62,7 @@ func GetSetupUpdateFolderCommand() *cli.Command {
 	allowedCommands := strings.Join(folders.AllowedCommands, ", ")
 	return &cli.Command{
 		Name:      "update-folder",
-		Usage:     "Add a folder to go-dev",
+		Usage:     "Update folder setup",
 		Action:    actions.SetupUpdateFolderAction,
 		After:     ctx.ChainedActions(ctx.AssertSaveIfNotError),
 		ArgsUsage: "[folder default=" + currentFolder + "]",

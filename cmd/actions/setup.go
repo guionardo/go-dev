@@ -17,24 +17,29 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func SetupAddFolderAction(c *cli.Context) error {
+func SetupAddRootFolderAction(c *cli.Context) error {
 	c2 := ctx.GetContext(c)
 	if c.NArg() < 1 {
-		return fmt.Errorf("Missing folder name")
+		return fmt.Errorf("missing folder name")
 	}
 	folderName := c.Args().First()
 	if folderName == "" {
 		folderName, _ = os.Getwd()
 	}
 	if _, err := os.Stat(folderName); os.IsNotExist(err) {
-		return fmt.Errorf("Folder %s not found", folderName)
+		return fmt.Errorf("folder %s not found", folderName)
 	}
 	if _, ok := c2.Config.DevFolders[folderName]; ok {
-		return fmt.Errorf("Folder %s already added", folderName)
+		return fmt.Errorf("folder %s already added", folderName)
+	}
+	for folder := range c2.Config.GetFolders(false) {
+		if strings.HasPrefix(folderName, folder.Path) {
+			return fmt.Errorf("folder %s is a subfolder of %s", folderName, folder)
+		}
 	}
 	maxDepth := c.Int(consts.FlagMaxDept)
 	if maxDepth <= 0 {
-		return fmt.Errorf("Max depth must be greater than 0")
+		return fmt.Errorf("max depth must be greater than 0")
 	}
 	collection := folders.CreateCollection(folderName, maxDepth)
 	if err := collection.Sync(); err != nil {
@@ -55,7 +60,7 @@ func SetupUpdateFolderAction(c *cli.Context) (err error) {
 		folderName, _ = os.Getwd()
 	}
 	if _, err = os.Stat(folderName); os.IsNotExist(err) {
-		return fmt.Errorf("Folder %s not found", folderName)
+		return fmt.Errorf("folder %s not found", folderName)
 	}
 	var folder *folders.Folder
 	var currentCollection *folders.FolderCollection
@@ -66,7 +71,7 @@ func SetupUpdateFolderAction(c *cli.Context) (err error) {
 		}
 	}
 	if folder == nil {
-		return fmt.Errorf("Folder %s not found - run a sync command", folderName)
+		return fmt.Errorf("folder %s not found - run a sync command", folderName)
 	}
 	changed := false
 	if c.IsSet(consts.FlagIgnoreChildren) && c.Bool(consts.FlagIgnoreChildren) != folder.IgnoreSubFolders {
@@ -79,12 +84,11 @@ func SetupUpdateFolderAction(c *cli.Context) (err error) {
 	}
 
 	if !changed {
-		return errors.New("Nothing to update")
+		return errors.New("nothing to update")
 	}
 	logger.Info("Updating folder %v", folder)
 
 	if folder.IgnoreSubFolders {
-		
 		currentCollection.FixIgnored()
 	}
 
@@ -131,7 +135,7 @@ func SetupShellAction(c *cli.Context) error {
 	}
 	if strings.HasSuffix(executableName, "__debug_bin") {
 		// Running from vscode
-		return errors.New("Not supported from vscode")
+		return errors.New("not supported from vscode")
 	}
 	sourceLine := fmt.Sprintf("source <(%s init)", executableName)
 
@@ -153,14 +157,14 @@ func SetupShellAction(c *cli.Context) error {
 	operation := ""
 	if disable {
 		if err != nil {
-			return fmt.Errorf("Shell action was just disabled in %s", shellInfo.RCFile)
+			return fmt.Errorf("shell action was just disabled in %s", shellInfo.RCFile)
 		}
 		lines.RemoveItem(lineNo)
 		operation = fmt.Sprintf("Disabled shell action in %s", shellInfo.RCFile)
 	} else {
 		if err == nil {
 			if line == sourceLine {
-				return fmt.Errorf("Shell action already enabled in %s at line %d: %s", shellInfo.RCFile, lineNo, line)
+				return fmt.Errorf("shell action already enabled in %s at line %d: %s", shellInfo.RCFile, lineNo, line)
 			}
 			lines.UpdateItem(lineNo, sourceLine)
 			operation = fmt.Sprintf("Updated shell action in %s at line %d: %s\nNew line: %s", shellInfo.RCFile, lineNo, line, sourceLine)

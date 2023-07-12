@@ -16,6 +16,22 @@ type Config struct {
 	AutoUpdate IntervalRunner                       `yaml:"auto_update"`
 }
 
+func (c *Config) GetFolders(onlyNotIgnored bool) chan *folders.Folder {
+	ch := make(chan *folders.Folder)
+	go func() {
+		for _, collection := range c.DevFolders {
+			for _, folder := range collection.Folders {
+				if onlyNotIgnored && folder.Ignore {
+					continue
+				}
+				ch <- folder
+			}
+		}
+		close(ch)
+	}()
+	return ch
+}
+
 func LoadConfigFile(filename string) (config *Config, err error) {
 	var content []byte
 	content, err = os.ReadFile(filename)
@@ -54,6 +70,6 @@ func (c *Config) Find(folderName string) (coll *folders.FolderCollection, folder
 			return
 		}
 	}
-	err = fmt.Errorf("Folder %s not found", folderName)
+	err = fmt.Errorf("folder %s not found", folderName)
 	return
 }

@@ -15,7 +15,7 @@ import (
 
 func GoAction(c *cli.Context) error {
 	if c.Args().Len() == 0 {
-		return errors.New("No arguments provided")
+		return errors.New("no arguments provided")
 	}
 	c2 := ctx.GetContext(c)
 	found := make([]*folders.Folder, 0)
@@ -28,7 +28,7 @@ func GoAction(c *cli.Context) error {
 		}
 	}
 	if len(found) == 0 {
-		return fmt.Errorf("No folders found for %s", c.Args().Slice())
+		return fmt.Errorf("no folders found for %s", c.Args().Slice())
 	}
 
 	match := make([]string, len(found))
@@ -47,11 +47,11 @@ func GoAction(c *cli.Context) error {
 	}
 
 	sort.Strings(match)
-	choosed_folder := utils.FolderChoice(match, maxDevFolder, c.String(consts.FlagChoiceType))
-	if len(choosed_folder) == 0 {
+	chosedFolder := utils.FolderChoice(match, maxDevFolder, c.String(consts.FlagChoiceType))
+	if len(chosedFolder) == 0 {
 		return errors.New("no folder choose")
 	}
-	_, folder, err := c2.Config.Find(choosed_folder)
+	_, folder, err := c2.Config.Find(chosedFolder)
 	if err != nil {
 		return err
 	}
